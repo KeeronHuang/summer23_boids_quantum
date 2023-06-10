@@ -6,3 +6,9 @@ The original code is referred from the graduation thesis by Zixuan Wang, and ins
 This program is set to develop more principles for decision making, and gets the inspiration from the previous work. 
 
 To be continued...
+
+References：
+# Code for the Boids Algorithm 
+https://github.com/beneater/boids/blob/master/boids.js
+# Boids Pseudocode
+http://www.kfish.org/boids/pseudocode.html
