@@ -1,4 +1,6 @@
 import random
+import time
+import threading
 import math
 import cmath
 import numpy as np
@@ -38,6 +40,7 @@ global scatter_boid
 count = 0
 
 loop_time = 0
+totaltime = 0
 
 fig = plt.figure(figsize=(8, 8))
 figax = fig.add_axes([0, 0, 1, 1], frameon=True)
@@ -202,8 +205,13 @@ def update(frame):
     global loop_time
     global flag
     global point
+    global totaltime
     if point:
         loop_time += 1
+    else:
+        totaltime += 0.035
+        if totaltime >= 5:
+            mouse_move()
     boidp=[]
     boidp.append([X_target,Y_target])
     for i in boids:
@@ -228,6 +236,7 @@ def update(frame):
     flag += numNearFood(boids)
     if flag == 1 :
         print(loop_time)
+        #plt.close()
 
     return boidp,boidx,boidy
     
@@ -245,14 +254,14 @@ point = 0
     #Y_target = ev.ydata
     #point = 1
 
-def mouse_move(ev):
+def mouse_move():
     global X_target
     global Y_target
     global point
     X_target = 200
     Y_target = 200
     point = 1
-    
+
     figax.scatter(X_target,Y_target,c='pink')
     # scatter_target
     
@@ -269,11 +278,15 @@ def mouse_move(ev):
 #timer = fig.canvas.new_timer(interval=0)
 #timer.add_callback(mouse_move)
 
-cid = fig.canvas.mpl_connect('button_press_event', mouse_move)
-
-
-
-
+#def timing():
+    #if point == 0:
+        #global totaltime
+        #totaltime += 0.035
+        #if totaltime == 5:
+            #mouse_move()
+    #timer = threading.Timer(2000, mouse_move)
+    #timer.add_callback(fig.canvas.mpl_connect('draw_event', mouse_move))
+    #cid = fig.canvas.mpl_connect('draw_event', mouse_move)
 
 animation = FuncAnimation(fig, animate, interval=35)
 
