@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(2,27):
+for Num in range(2,52):
 
     width = 400
     height = 400
@@ -76,26 +76,26 @@ for Num in range(2,27):
     def distanceY(boid1,boid2):
         return (boid2[y]-boid1[y])
 
-    def TransToComplex(theta):
-        y = complex(np.cos(theta),-np.sin(theta))
+    def TransToComplex(theta,x):
+        y = complex(x*np.cos(theta),-x*np.sin(theta))
         return y
 
     #Define the action function of interference behavior
     def acceleration(boid):
         BoidsInRange = 0
         wave = 340/20
-        cofact = 1 # reduce the influency of other birds on phi
+        cofact = 0.1 # reduce the influency of other birds on phi
         axTotal = complex(0,0)
         ayTotal = complex(0,0)
         phasechange(boid)
         for i in range(0,numBoids):
             if distance(boid,boids[i])<touchRange_bird:
-                axTotal += TransToComplex((distanceX(boid,boids[i])/wave)*2*math.pi + boids[i][phix])
-                ayTotal += TransToComplex((distanceY(boid,boids[i])/wave)*2*math.pi + boids[i][phiy])
+                axTotal += TransToComplex((distanceX(boid,boids[i])/wave)*2*math.pi + boids[i][phix],cofact)
+                ayTotal += TransToComplex((distanceY(boid,boids[i])/wave)*2*math.pi + boids[i][phiy],cofact)
                 BoidsInRange += 1
 
-        boid[ax] = (axTotal/BoidsInRange+cofact*TransToComplex(boid[phix]))
-        boid[ay] = (ayTotal/BoidsInRange+cofact*TransToComplex(boid[phiy]))
+        boid[ax] = (axTotal/BoidsInRange+TransToComplex(boid[phix],cofact))
+        boid[ay] = (ayTotal/BoidsInRange+TransToComplex(boid[phiy],cofact))
         return
 
     def phasechange(boid):
