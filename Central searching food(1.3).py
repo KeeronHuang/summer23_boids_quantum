@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(2,5):
+for Num in range(3,53):
 
-    width = 400
-    height = 400
+    width = 800
+    height = 800
     numBoids =100
     visualRange_bird = 75
     touchRange_bird = 20
-    Char = "H"
+    Char = "F"
     boids={}
     #a = complex(0,1)
     ax = complex(0,1)
@@ -33,7 +33,7 @@ for Num in range(2,5):
     omega = 1.08*(m**(1/3)*g**(1/2)*b**(-1)*S**(-1/4)*p**(-1/3))*2*math.pi # frequency of the wave function
     boidx=[]
     boidy=[] #if want to show the track of the bird
-    Acc=0.2
+    Acc=0.033
 
     X_target = -200
     Y_target = -200
@@ -50,8 +50,8 @@ for Num in range(2,5):
 
     fig = plt.figure(figsize=(8, 8))
     figax = fig.add_axes([0, 0, 1, 1], frameon=True)
-    figax.set_xlim(-50, 450), figax.set_xticks([])
-    figax.set_ylim(-50, 450), figax.set_yticks([])
+    figax.set_xlim(-50, 850), figax.set_xticks([])
+    figax.set_ylim(-50, 850), figax.set_yticks([])
 
     def initBoids():
         for i in range (0,numBoids):
@@ -104,6 +104,30 @@ for Num in range(2,5):
     def phasechange(boid):
         boid[phi] += omega*0.035
         boid[phi] = boid[phi] % 2 * math.pi
+        return
+    
+    def cal_accleration(boid,i,wavelength):
+        # Calculating alpha between two birds.
+        diffy = boids[i][y]-boid[y]
+        diffx = boids[i][x]-boid[x]
+        zero = 0
+        delta = TransToComplex((distance(boid,boids[i])/wavelength)*2*math.pi + boids[i][phi],Acc)
+        if diffy == zero and diffx > zero:
+            boid[ax] += -delta
+        elif diffy == zero and diffx < zero:
+            boid[ax] += +delta
+        elif diffx == zero and diffy > zero:
+            boid[ay] += -delta
+        elif diffx == zero and diffy < zero:
+            boid[ay] += +delta
+        elif diffx == zero and diffy == zero:
+            return
+        else:
+            alpha = math.atan(abs(diffy)/abs(diffx))
+            deltax = TransToComplex((distance(boid,boids[i])/wavelength)*2*math.pi + boids[i][phi],Acc) * math.cos(alpha)
+            deltay = TransToComplex((distance(boid,boids[i])/wavelength)*2*math.pi + boids[i][phi],Acc) * math.sin(alpha)
+            boid[ax] += deltax * (-abs(diffx)/diffx)
+            boid[ay] += deltay * (-abs(diffy)/diffy)
         return
 
     #Keep the Boids inside the window
@@ -170,7 +194,7 @@ for Num in range(2,5):
         return
     #Defining the foraging behavior of boids
     def attraction(boid,x_target,y_target):
-        attractingfactor = 0.05
+        attractingfactor = 0.1
         a=[x_target,y_target]
         moveX = 0
         moveY = 0
@@ -202,7 +226,7 @@ for Num in range(2,5):
                     point = 1
                 if num >= 10:
                     flag = 1
-                    break
+                    return flag
         return flag
     
     initBoids()
@@ -270,36 +294,13 @@ for Num in range(2,5):
         global X_target
         global Y_target
         #global point
-        X_target = random.choice(range(175,225))
-        Y_target = random.choice(range(175,225))
+        X_target = random.choice(range(350,450))
+        Y_target = random.choice(range(350,450))
         #point = 1
 
         figax.scatter(X_target,Y_target,c='pink')
         # scatter_target
 
-    def cal_accleration(boid,i,wavelength):
-        # Calculating alpha between two birds.
-        diffy = boids[i][y]-boid[y]
-        diffx = boids[i][x]-boid[x]
-        zero = 0
-        delta = TransToComplex((distance(boid,boids[i])/wavelength)*2*math.pi + boids[i][phi],Acc)
-        if diffy == zero and diffx > zero:
-            boid[ax] += -delta
-        elif diffy == zero and diffx < zero:
-            boid[ax] += +delta
-        elif diffx == zero and diffy > zero:
-            boid[ay] += -delta
-        elif diffx == zero and diffy < zero:
-            boid[ay] += +delta
-        elif diffx == zero and diffy == zero:
-            return
-        else:
-            alpha = math.atan(abs(diffy)/abs(diffx))
-            deltax = TransToComplex((distance(boid,boids[i])/wavelength)*2*math.pi + boids[i][phi],Acc) * math.cos(alpha)
-            deltay = TransToComplex((distance(boid,boids[i])/wavelength)*2*math.pi + boids[i][phi],Acc) * math.sin(alpha)
-            boid[ax] += deltax * (-abs(diffx)/diffx)
-            boid[ay] += deltay * (-abs(diffy)/diffy)
-        return
 
     animation = FuncAnimation(fig, animate, interval=35)
 
