@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,4):
+for Num in range(3,5):
 
-    width = 600
-    height = 600
+    width = 500
+    height = 500
     numBoids =100
     visualRange_bird = 75
     touchRange_bird = 20
-    Char = "Y"
+    Char = "M"
     boids={}
     #a = complex(0,1)
     ax = complex(0,1)
@@ -33,7 +33,7 @@ for Num in range(3,4):
     omega = 1.08*(m**(1/3)*g**(1/2)*b**(-1)*S**(-1/4)*p**(-1/3))*2*math.pi # frequency of the wave function
     boidx=[]
     boidy=[] #if want to show the track of the bird
-    Acc=0.1
+    Acc=0
 
     X_target = -200
     Y_target = -200
@@ -45,15 +45,16 @@ for Num in range(3,4):
     totaltime = 0
     alpha = 0
     counter = 0
-    num_max = 0
+    #num_max = 0
+    num = 0
 
     workbook = load_workbook(filename="Modified Quantum(1).xlsx")
-    sheet2 = workbook.active
+    sheet3 = workbook.active
 
     fig = plt.figure(figsize=(8, 8))
     figax = fig.add_axes([0, 0, 1, 1], frameon=True)
-    figax.set_xlim(-50, 650), figax.set_xticks([])
-    figax.set_ylim(-50, 650), figax.set_yticks([])
+    figax.set_xlim(-50, 550), figax.set_xticks([])
+    figax.set_ylim(-50, 550), figax.set_yticks([])
 
     def initBoids():
         for i in range (0,numBoids):
@@ -104,7 +105,7 @@ for Num in range(3,4):
         return
 
     def phasechange(boid):
-        boid[phi] += omega*0.035
+        boid[phi] += omega*0.005
         boid[phi] = boid[phi] % 2 * math.pi
         return
     
@@ -196,7 +197,7 @@ for Num in range(3,4):
         return
     #Defining the foraging behavior of boids
     def attraction(boid,x_target,y_target):
-        attractingfactor = 0.05
+        attractingfactor = 0.1
         a=[x_target,y_target]
         moveX = 0
         moveY = 0
@@ -216,12 +217,13 @@ for Num in range(3,4):
 
     def numNearFood(boids):
         #flag = 0
-        num = 0
+        #num = 0
         global X_target
         global Y_target
         global point
-        global num_max
+        #global num_max
         global flag
+        global num
         for i in range(0,numBoids):
             distance = math.sqrt( (boids[i][x] - X_target) * (boids[i][x] - X_target) +(boids[i][y] - Y_target) * (boids[i][y] - Y_target))
             if distance <= 25:
@@ -231,8 +233,8 @@ for Num in range(3,4):
                 #if num >= 6:
                     #flag = 1
                     #return flag
-        if num > num_max:
-            num_max = num
+        if num > 300:
+            flag = 1
         return
     
     initBoids()
@@ -248,13 +250,13 @@ for Num in range(3,4):
         global totaltime
         global counter
         if point:
-            #loop_time += 1
-            counter += 0.035
-            if counter > 2 and counter < 2.04:
-                flag = 1
+            loop_time += 1
+            #counter += 0.035
+            #if counter > 3 and counter < 3.04:
+                #flag = 1
         else:
-            totaltime += 0.035
-            if totaltime > 3 and totaltime < 3.04:
+            totaltime += 0.005
+            if totaltime > 0.43 and totaltime < 0.435:
                 mouse_move()
         boidp=[]
         boidp.append([X_target,Y_target])
@@ -280,7 +282,7 @@ for Num in range(3,4):
         numNearFood(boids)
         if flag == 1 :
             #print(loop_time)
-            sheet2[Char+str(Num)] = num_max
+            sheet3[Char+str(Num)] = loop_time
             workbook.save(filename="Modified Quantum(1).xlsx")
             plt.close()
 
@@ -304,15 +306,15 @@ for Num in range(3,4):
         global X_target
         global Y_target
         #global point
-        X_target = random.choice(range(250,350))
-        Y_target = random.choice(range(250,350))
+        X_target = random.choice(range(200,300))
+        Y_target = random.choice(range(200,300))
         #point = 1
 
         figax.scatter(X_target,Y_target,c='pink')
         # scatter_target
 
 
-    animation = FuncAnimation(fig, animate, interval=35)
+    animation = FuncAnimation(fig, animate, interval=5)
 
 
 
