@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,4):
+for Num in range(4,104):
 
     width = 500
     height = 500
     numBoids =100
     visualRange_bird = 75
     touchRange_bird = 20
-    Char = "O"
+    Char = "AC"
     boids={}
     ax = complex(0,1)
     ay = complex(0,1)
@@ -25,7 +25,7 @@ for Num in range(3,4):
     history =4
     boidx=[]
     boidy=[] #if want to show the track of the bird
-    Acc=0
+    Acc=0.075
 
     X_target = -200
     Y_target = -200
@@ -41,7 +41,7 @@ for Num in range(3,4):
     #uni = 0
     num = 0
 
-    workbook = load_workbook(filename="Modified Quantum(1).xlsx")
+    workbook = load_workbook(filename="Modified Quantum(1)Compared.xlsx")
     sheet = workbook.active
 
     fig = plt.figure(figsize=(8, 8))
@@ -246,10 +246,10 @@ for Num in range(3,4):
         flag += numNearFood(boids)
         
         if flag == 1 :
-            print(Num)
+            #print(Num)
             sheet[Char+str(Num)] = loop_time
-            workbook.save(filename="Modified Quantum(1).xlsx")
-            #plt.close()
+            workbook.save(filename="Modified Quantum(1)Compared.xlsx")
+            plt.close()
 
         return boidp,boidx,boidy
         
