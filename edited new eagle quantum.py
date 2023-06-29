@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,5):
+for Num in range(3,23):
 
     width = 800
     height = 800
@@ -32,7 +32,7 @@ for Num in range(3,5):
     dy=3
     history =4
     flag = 0
-    life = 25
+    life = 20
     attract_or_repulse=1  #set the meaning of mouseclick.0 is attract,1 is repulse
     #x_target,y_target=0,0
     phi = 5 # phase for the wave function
@@ -46,7 +46,7 @@ for Num in range(3,5):
     boidy=[] #if want to show the track of the bird
     eaglex=[]
     eagley=[]
-    Char = "M"
+    Char = "N"
     Acc=0.1
 
     global scatter_boid,scatter_eagle
@@ -87,7 +87,7 @@ for Num in range(3,5):
         return
     #Initialize Eagle structure
     def initEagle():
-        eagle={ x:random.choice([0,800]), y:random.choice([0,800]), dx:random.random()*15-5 , dy:random.random()*15-5,
+        eagle={ x:random.choice([0,800]), y:random.choice([0,800]), dx:random.random()*10-5 , dy:random.random()*10-5,
             history:[]}
         eaglex.append(eagle[x])
         eagley.append(eagle[y])
@@ -155,23 +155,62 @@ for Num in range(3,5):
 
     #Defining the predation behavior of eagles
     def catchbird(eagle):
-        catchFactor = 0.4
-        min_dis_eagle = 0 
+        catchFactor = 0.2
+        min_dis_eagle = 0
         min_boid = 0
         for i in range(0,numBoids):
-            if i==0:
-                min_dis_eagle = distance(boids[i],eagle)
-            else:
-                if distance(boids[i],eagle)<min_dis_eagle:
+            if distance(boids[i],eagle) <= visualRange_eagle:
+                if min_dis_eagle==0:
                     min_dis_eagle = distance(boids[i],eagle)
-                    min_boid = i
-        eagle[dx] = (boids[min_boid][x] - eagle[x]) * catchFactor
-        eagle[dy] = (boids[min_boid][y] - eagle[y]) * catchFactor
+                else:
+                    if distance(boids[i],eagle)<min_dis_eagle:
+                        min_dis_eagle = distance(boids[i],eagle)
+                        min_boid = i
+        chasingcheck(boids[min_boid],eagle,20,10,1/3)
         return
+    
+    def avoideagle(boid,eagle):
+        avoideagle_F = 0.1
+        if distance(boid,eagle)<visualRange_bird:
+            boid[dx] -= (eagle[x]-boid[x]) * avoideagle_F
+            boid[dy] -= (eagle[y]-boid[y]) * avoideagle_F
+        return
+
+    def chasingcheck(creature,eagle,speedlimit,min_speed,delta_change):
+            zero = 0
+            global v
+            diffy = creature[y]-eagle[y]
+            diffx = creature[x]-eagle[x]
+            v = speedlimit - (distance(creature,eagle)- min_speed) * delta_change
+            print(eagle[dx],eagle[dy])
+            if diffy == zero and diffx > zero:
+                eagle[dx] = v
+                eagle[dy] = 0
+            elif diffy == zero and diffx < zero:
+                eagle[dx] = -v
+                eagle[dy] = 0
+            elif diffx == zero and diffy > zero:
+                eagle[dy] = v
+                eagle[dx] = 0
+            elif diffx == zero and diffy < zero:
+                eagle[dy] = -v
+                eagle[dx] = 0
+            elif diffx == zero and diffy == zero:
+                return
+            else:
+                alpha = math.atan(abs(diffy)/abs(diffx))
+                deltax = v * math.cos(alpha)
+                deltay = v * math.sin(alpha)
+                eagle[dx] = deltax * (abs(diffx)/diffx)
+                eagle[dy] = deltay * (abs(diffy)/diffy)
+        
+    
+
+
 
     def catchscore(eagle,boids):
         global flag             #表示捕捉成功：只要catchrange内有鸟就算成功
-        catchrange = 20
+        catchrange = 10
         for boid in boids:
             if distance(eagle,boids[boid]) < catchrange:
                 #flag = 1
@@ -181,9 +220,9 @@ for Num in range(3,5):
                     return
         return
 
-    def keepWithinBounds(boid):
+    def keepWithinBounds(boid,turnFactor):
         margin=0
-        turnFactor = 7
+        #turnFactor = 7
         if boid[x] < margin :
             boid[dx] += turnFactor
         if boid[x] > width - margin :
@@ -211,6 +250,7 @@ for Num in range(3,5):
 
             boid[dx] += (centerX - boid[x]) * centeringFactor
             boid[dy] += (centerY - boid[y]) * centeringFactor
+
     def avoidOthers(boid):
         minDistance = 20
         avoidFactor = 0.05
@@ -242,16 +282,7 @@ for Num in range(3,5):
             boid[dy]+=(avgDY-boid[dy])*matchingFactor
         return
 
-    def avoideagle(boid,eagle):
-        avoideagle_F = 0.1
-        if distance(boid,eagle)<visualRange_bird:
-            boid[dx] -= (eagle[x]-boid[x]) * avoideagle_F
-            boid[dy] -= (eagle[y]-boid[y]) * avoideagle_F
-
-        return
-
-    def limitSpeed(boid):
-        speedLimit=15
+    def limitSpeed(boid,speedLimit):
         speed = math.sqrt(boid[dx]*boid[dx]+boid[dy]*boid[dy])
         if speed > speedLimit:
             boid[dx]=(boid[dx]/speed)*speedLimit
@@ -282,8 +313,8 @@ for Num in range(3,5):
             avoidOthers(boid)
             matchVelocity(boid)
             avoideagle(boid,eagle)
-            limitSpeed(boid)
-            keepWithinBounds(boid)
+            limitSpeed(boid,15)
+            keepWithinBounds(boid,7)
             acceleration(boid)
             boid[x] += boid[dx]
             boid[y] += boid[dy]
@@ -295,7 +326,8 @@ for Num in range(3,5):
             boidy.append(boid[y])
             boidp.append([boid[x],boid[y]])
         catchbird(eagle)
-        keepWithinBounds(eagle)
+        keepWithinBounds(eagle,20)
+        limitSpeed(boid,15)
         eagle[x] += eagle[dx]
         eagle[y] += eagle[dy]
         eaglex=[]
@@ -324,7 +356,7 @@ for Num in range(3,5):
         scatter_eagle.set_offsets(boidq)
         return
 
-    animation = FuncAnimation(fig, animate, interval=5)
+    animation = FuncAnimation(fig, animate, interval=500)
 
 
     plt.show()
