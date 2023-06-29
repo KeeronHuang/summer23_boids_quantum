@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,23):
+for Num in range(3,9):
 
     width = 800
     height = 800
@@ -50,12 +50,13 @@ for Num in range(3,23):
     Acc=0.1
 
     global scatter_boid,scatter_eagle
-    global loop_time
-    loop_time = 0
     #global count            #表示捕获成功的次数
     count = 0
     global score
     score = 0
+    point = 0
+    loop_time = 0
+    v = 0
 
     #initial plot
     fig = plt.figure(figsize=(8, 8))
@@ -87,7 +88,7 @@ for Num in range(3,23):
         return
     #Initialize Eagle structure
     def initEagle():
-        eagle={ x:random.choice([0,800]), y:random.choice([0,800]), dx:random.random()*10-5 , dy:random.random()*10-5,
+        eagle={ x:random.choice([0]), y:random.choice([0,800]), dx:random.random()*5+5 , dy:random.random()*5+5,
             history:[]}
         eaglex.append(eagle[x])
         eagley.append(eagle[y])
@@ -159,14 +160,16 @@ for Num in range(3,23):
         min_dis_eagle = 0
         min_boid = 0
         for i in range(0,numBoids):
-            if distance(boids[i],eagle) <= visualRange_eagle:
-                if min_dis_eagle==0:
+            #if distance(boids[i],eagle) <= visualRange_eagle:
+                if i==0:
                     min_dis_eagle = distance(boids[i],eagle)
                 else:
                     if distance(boids[i],eagle)<min_dis_eagle:
                         min_dis_eagle = distance(boids[i],eagle)
                         min_boid = i
-        chasingcheck(boids[min_boid],eagle,20,10,1/3)
+                print(min_dis_eagle)
+        #print(min_boid)
+        chasingcheck(boids[min_boid],eagle,20,10,1/6,catchFactor)
         return
     
     def avoideagle(boid,eagle):
@@ -176,13 +179,20 @@ for Num in range(3,23):
             boid[dy] -= (eagle[y]-boid[y]) * avoideagle_F
         return
 
-    def chasingcheck(creature,eagle,speedlimit,min_speed,delta_change):
+    def chasingcheck(creature,eagle,speedlimit,min_dis,delta_change,factor):
             zero = 0
-            global v
+            v = 0
+            global point
             diffy = creature[y]-eagle[y]
             diffx = creature[x]-eagle[x]
-            v = speedlimit - (distance(creature,eagle)- min_speed) * delta_change
-            print(eagle[dx],eagle[dy])
+            if distance(creature,eagle) <= visualRange_eagle:
+                v = (speedlimit - (distance(creature,eagle)- min_dis) * delta_change)
+                if point == 0:
+                    point = 1
+            else:
+                v = (creature[x] - eagle[x]) * factor
+            if v > speedlimit:
+                v = speedlimit
             if diffy == zero and diffx > zero:
                 eagle[dx] = v
                 eagle[dy] = 0
@@ -203,10 +213,8 @@ for Num in range(3,23):
                 deltay = v * math.sin(alpha)
                 eagle[dx] = deltax * (abs(diffx)/diffx)
                 eagle[dy] = deltay * (abs(diffy)/diffy)
+            return
         
-    
-
-
 
     def catchscore(eagle,boids):
         global flag             #表示捕捉成功：只要catchrange内有鸟就算成功
@@ -299,7 +307,8 @@ for Num in range(3,23):
 
     def update(frame):
         global loop_time
-        loop_time += 1
+        if point:
+            loop_time += 1
         global count
         global boidp
         global boidq
@@ -326,8 +335,9 @@ for Num in range(3,23):
             boidy.append(boid[y])
             boidp.append([boid[x],boid[y]])
         catchbird(eagle)
-        keepWithinBounds(eagle,20)
-        limitSpeed(boid,15)
+        limitSpeed(eagle,20)
+        keepWithinBounds(eagle,15)
+        #limitSpeed(boid,15)
         eagle[x] += eagle[dx]
         eagle[y] += eagle[dy]
         eaglex=[]
@@ -356,7 +366,7 @@ for Num in range(3,23):
         scatter_eagle.set_offsets(boidq)
         return
 
-    animation = FuncAnimation(fig, animate, interval=500)
+    animation = FuncAnimation(fig, animate, interval=5)
 
 
     plt.show()
