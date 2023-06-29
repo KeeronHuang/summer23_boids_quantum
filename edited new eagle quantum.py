@@ -156,7 +156,7 @@ for Num in range(3,9):
 
     #Defining the predation behavior of eagles
     def catchbird(eagle):
-        catchFactor = 0.2
+        catchFactor = 0.3
         min_dis_eagle = 0
         min_boid = 0
         for i in range(0,numBoids):
