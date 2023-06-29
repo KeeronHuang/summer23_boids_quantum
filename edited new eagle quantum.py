@@ -13,14 +13,15 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,9):
+for Num in range(3,23):
 
     width = 800
     height = 800
     numBoids =100
     visualRange_bird = 75
-    visualRange_eagle = 70
+    visualRange_eagle = 90
     touchRange_bird = 20
+    catchrange = 10
     boids={}
     ax = complex(1,1)
     ay = complex(1,1)
@@ -48,6 +49,8 @@ for Num in range(3,9):
     eagley=[]
     Char = "N"
     Acc=0.1
+    maxspeed_eagle = 20
+    minspeed_eagle = 10
 
     global scatter_boid,scatter_eagle
     #global count            #表示捕获成功的次数
@@ -167,9 +170,10 @@ for Num in range(3,9):
                     if distance(boids[i],eagle)<min_dis_eagle:
                         min_dis_eagle = distance(boids[i],eagle)
                         min_boid = i
-                print(min_dis_eagle)
+                #print(min_dis_eagle)
         #print(min_boid)
-        chasingcheck(boids[min_boid],eagle,20,10,1/6,catchFactor)
+        interval = (maxspeed_eagle-minspeed_eagle)/(visualRange_eagle-catchrange)
+        chasingcheck(boids[min_boid],eagle,maxspeed_eagle,catchrange,interval,catchFactor)
         return
     
     def avoideagle(boid,eagle):
@@ -218,6 +222,7 @@ for Num in range(3,9):
 
     def catchscore(eagle,boids):
         global flag             #表示捕捉成功：只要catchrange内有鸟就算成功
+        global catchrange
         catchrange = 10
         for boid in boids:
             if distance(eagle,boids[boid]) < catchrange:
@@ -336,7 +341,7 @@ for Num in range(3,9):
             boidp.append([boid[x],boid[y]])
         catchbird(eagle)
         limitSpeed(eagle,20)
-        keepWithinBounds(eagle,15)
+        keepWithinBounds(eagle,16)
         #limitSpeed(boid,15)
         eagle[x] += eagle[dx]
         eagle[y] += eagle[dy]
