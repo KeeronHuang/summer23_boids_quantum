@@ -13,13 +13,13 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,23):
+for Num in range(3,10):
 
-    width = 800
-    height = 800
+    width = 1100
+    height = 1100
     numBoids =100
     visualRange_bird = 75
-    visualRange_eagle = 90
+    visualRange_eagle = 145
     touchRange_bird = 20
     catchrange = 10
     boids={}
@@ -47,8 +47,8 @@ for Num in range(3,23):
     boidy=[] #if want to show the track of the bird
     eaglex=[]
     eagley=[]
-    Char = "N"
-    Acc=0.1
+    Char = "T"
+    Acc=0.075
     maxspeed_eagle = 20
     minspeed_eagle = 10
 
@@ -64,10 +64,10 @@ for Num in range(3,23):
     #initial plot
     fig = plt.figure(figsize=(8, 8))
     figax = fig.add_axes([0, 0, 1, 1], frameon=True)
-    figax.set_xlim(-50, 850), figax.set_xticks([])
-    figax.set_ylim(-50, 850), figax.set_yticks([])
+    figax.set_xlim(-50, 1150), figax.set_xticks([])
+    figax.set_ylim(-50, 1150), figax.set_yticks([])
     #显示捕获次数
-    xtext_ani = plt.text(-40,820,'',fontsize=12)
+    xtext_ani = plt.text(-40,1120,'',fontsize=12)
 
     workbook = load_workbook(filename="Modified Quantum(2).xlsx")
     sheet = workbook.active
@@ -75,7 +75,7 @@ for Num in range(3,23):
     def initBoids():
         for i in range (0,numBoids):
             boids[i] = {
-                x : random.random() * width,
+                x : random.random() * (width-50)+50,
                 y : random.random() * height,
                 dx : random.random()*10-5,
                 dy : random.random()*10-5,
@@ -91,7 +91,7 @@ for Num in range(3,23):
         return
     #Initialize Eagle structure
     def initEagle():
-        eagle={ x:random.choice([0]), y:random.choice([0,800]), dx:random.random()*5+5 , dy:random.random()*5+5,
+        eagle={ x:random.choice([0]), y:random.choice([0]), dx:random.random()*1/2 , dy:random.random()*1/2,
             history:[]}
         eaglex.append(eagle[x])
         eagley.append(eagle[y])
@@ -129,7 +129,7 @@ for Num in range(3,23):
             return
 
     def phasechange(boid):
-            boid[phi] += omega*0.005
+            boid[phi] += omega*0.001
             boid[phi] = boid[phi] % 2 * math.pi
             return
         
@@ -177,7 +177,7 @@ for Num in range(3,23):
         return
     
     def avoideagle(boid,eagle):
-        avoideagle_F = 0.1
+        avoideagle_F = 0.15
         if distance(boid,eagle)<visualRange_bird:
             boid[dx] -= (eagle[x]-boid[x]) * avoideagle_F
             boid[dy] -= (eagle[y]-boid[y]) * avoideagle_F
@@ -340,8 +340,9 @@ for Num in range(3,23):
             boidy.append(boid[y])
             boidp.append([boid[x],boid[y]])
         catchbird(eagle)
-        limitSpeed(eagle,20)
-        keepWithinBounds(eagle,16)
+        limitSpeed(eagle,maxspeed_eagle)
+        keepWithinBounds(eagle,12)
+        #limitSpeed(eagle,maxspeed_eagle)
         #limitSpeed(boid,15)
         eagle[x] += eagle[dx]
         eagle[y] += eagle[dy]
@@ -371,7 +372,7 @@ for Num in range(3,23):
         scatter_eagle.set_offsets(boidq)
         return
 
-    animation = FuncAnimation(fig, animate, interval=5)
+    animation = FuncAnimation(fig, animate, interval=1)
 
 
     plt.show()
