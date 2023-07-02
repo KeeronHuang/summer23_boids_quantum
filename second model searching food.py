@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,103):
+for Num in range(1,11):
 
     width = 500
     height = 500
     numBoids =100
     visualRange_bird = 75
     touchRange_bird = 20
-    Char = "B"
+    Char = "A"
     boids={}
     #a = complex(0,1)
     ax = complex(0,1)
@@ -33,7 +33,7 @@ for Num in range(3,103):
     omega = 1.08*(m**(1/3)*g**(1/2)*b**(-1)*S**(-1/4)*p**(-1/3))*2*math.pi # frequency of the wave function
     boidx=[]
     boidy=[] #if want to show the track of the bird
-    Acc=0.075
+    Acc=0.1
 
     X_target = -200
     Y_target = -200
@@ -48,8 +48,8 @@ for Num in range(3,103):
     #num_max = 0
     num = 0
 
-    workbook = load_workbook(filename="searching food model2(1).xlsx")
-    sheet3 = workbook.active
+    workbook = load_workbook(filename="draft.xlsx")
+    sheet = workbook.active
 
     fig = plt.figure(figsize=(8, 8))
     figax = fig.add_axes([0, 0, 1, 1], frameon=True)
@@ -105,7 +105,7 @@ for Num in range(3,103):
         return
 
     def phasechange(boid):
-        boid[phi] += omega*0.005
+        boid[phi] += omega*0.001
         boid[phi] = boid[phi] % 2 * math.pi
         return
     
@@ -134,9 +134,13 @@ for Num in range(3,103):
         return
     
     def coefficient(r):
-        C_max = 0.18
+        e_C_max = 1.2
+        e_C_min = 0.4
+        d_max = touchRange_bird
         d_min = 5
-        delta_d = 0.054
+        C_max = math.log(e_C_max,math.e)
+        C_min = math.log(e_C_min,math.e)
+        delta_d = (C_max - C_min)/(d_max - d_min)
         if r <= d_min:
             coeffi = C_max
         else:
@@ -261,12 +265,12 @@ for Num in range(3,103):
         global counter
         if point:
             loop_time += 1
-            #counter += 0.035
+            #counter += 0.001
             #if counter > 3 and counter < 3.04:
                 #flag = 1
         else:
-            totaltime += 0.005
-            if totaltime > 0.43 and totaltime < 0.435:
+            totaltime += 0.001
+            if totaltime > 0.086 and totaltime < 0.087:
                 mouse_move()
         boidp=[]
         boidp.append([X_target,Y_target])
@@ -292,8 +296,8 @@ for Num in range(3,103):
         flag += numNearFood(boids)
         if flag == 1 :
             print(Num)
-            sheet3[Char+str(Num)] = loop_time
-            workbook.save(filename="searching food model2(1).xlsx")
+            sheet[Char+str(Num)] = loop_time
+            workbook.save(filename="draft.xlsx")
             #plt.close()
 
         return boidp,boidx,boidy
@@ -324,7 +328,7 @@ for Num in range(3,103):
         # scatter_target
 
 
-    animation = FuncAnimation(fig, animate, interval=5)
+    animation = FuncAnimation(fig, animate, interval=1)
 
 
 
