@@ -47,8 +47,8 @@ for Num in range(3,53):
     boidy=[] #if want to show the track of the bird
     eaglex=[]
     eagley=[]
-    Char = "F"
-    Acc=0
+    Char = "AQ"
+    Acc=0.025
     numberofcatch = 3
     maxspeed_eagle = 20
     minspeed_eagle = 10
@@ -357,7 +357,7 @@ for Num in range(3,53):
             boidp.append([boid[x],boid[y]])
         catchbird(eagle)
         limitSpeed(eagle,maxspeed_eagle)
-        keepWithinBounds(eagle,23)
+        #keepWithinBounds(eagle,23)
         #limitSpeed(eagle,maxspeed_eagle)
         #limitSpeed(boid,15)
         eagle[x] += eagle[dx]
