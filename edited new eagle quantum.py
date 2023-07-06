@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,10):
+for Num in range(3,103):
 
     width = 1100
     height = 1100
@@ -47,8 +47,9 @@ for Num in range(3,10):
     boidy=[] #if want to show the track of the bird
     eaglex=[]
     eagley=[]
-    Char = "T"
-    Acc=0.075
+    Char = "S"
+    Acc=0
+    numberofcatch = 3
     maxspeed_eagle = 20
     minspeed_eagle = 10
 
@@ -69,8 +70,8 @@ for Num in range(3,10):
     #显示捕获次数
     xtext_ani = plt.text(-40,1120,'',fontsize=12)
 
-    workbook = load_workbook(filename="Modified Quantum(2).xlsx")
-    sheet = workbook.active
+    workbook = load_workbook(filename="Avoid eagle version two.xlsx")
+    sheet2 = workbook.active
 
     def initBoids():
         for i in range (0,numBoids):
@@ -221,17 +222,22 @@ for Num in range(3,10):
         
 
     def catchscore(eagle,boids):
-        global flag             #表示捕捉成功：只要catchrange内有鸟就算成功
+        #global flag             #表示捕捉成功：只要catchrange内有鸟就算成功
         global catchrange
+        flag = 0
         catchrange = 10
         for boid in boids:
             if distance(eagle,boids[boid]) < catchrange:
                 #flag = 1
                 boids[boid][life] -= 1
-                if boids[boid][life] == 0:
+                if boids[boid][life] <= 0:
                     flag = 1
-                    return
-        return
+                    boids[boid][x] = -9999
+                    boids[boid][y] = -9999
+                    boids[boid][dx] = 0
+                    boids[boid][dy] = 0
+                    return flag
+        return flag
 
     def keepWithinBounds(boid,turnFactor):
         margin=0
@@ -341,7 +347,7 @@ for Num in range(3,10):
             boidp.append([boid[x],boid[y]])
         catchbird(eagle)
         limitSpeed(eagle,maxspeed_eagle)
-        keepWithinBounds(eagle,12)
+        #keepWithinBounds(eagle,12)
         #limitSpeed(eagle,maxspeed_eagle)
         #limitSpeed(boid,15)
         eagle[x] += eagle[dx]
@@ -351,25 +357,34 @@ for Num in range(3,10):
         eagley=[]
         eagley.append(eagle[y])
         boidq.append([eagle[x],eagle[y]])
-
-        #count += catchscore(eagle,boids)
-        catchscore(eagle,boids)
+        rangecheck(eagle)
+        
+        #catchscore(eagle,boids)
         #score = count/loop_time
         #xtext_ani.set_text('score={:.2%}'.format(score))
         xtext_ani.set_text('score={:}'.format(loop_time))
         #if loop_time == 300:
-        if flag:
+        count += catchscore(eagle,boids)
+        if count == numberofcatch:
             #print('score={:.2%}'.format(score))
             #sheet[Char+str(Num)] = score*100
-            sheet[Char+str(Num)] = loop_time
-            workbook.save(filename="Modified Quantum(2).xlsx")
+            sheet2[Char+str(Num)] = loop_time
+            workbook.save(filename="Avoid eagle version two.xlsx")
             plt.close()
+        
         return boidp,boidx,boidy,boidq
         
     def animate(frame):
         update(frame)
         scatter_boid.set_offsets(boidp)
         scatter_eagle.set_offsets(boidq)
+        return
+    
+    def rangecheck(eagle):
+        if eagle[x] <= -75 or eagle[x] >= width + 75:
+            plt.close()
+        if eagle[y] <= -75 or eagle[y] >= height + 75:
+            plt.close()
         return
 
     animation = FuncAnimation(fig, animate, interval=1)
