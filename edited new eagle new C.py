@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,103):
+for Num in range(3,53):
 
     width = 1100
     height = 1100
@@ -47,8 +47,8 @@ for Num in range(3,103):
     boidy=[] #if want to show the track of the bird
     eaglex=[]
     eagley=[]
-    Char = "E"
-    Acc=0.1
+    Char = "AM"
+    Acc=0.125
     numberofcatch = 3
     maxspeed_eagle = 20
     minspeed_eagle = 10
@@ -61,14 +61,16 @@ for Num in range(3,103):
     point = 0
     loop_time = 0
     v = 0
+    check = 0
+    frame = 0
 
     #initial plot
-    fig = plt.figure(figsize=(8, 8))
-    figax = fig.add_axes([0, 0, 1, 1], frameon=True)
-    figax.set_xlim(-50, 1150), figax.set_xticks([])
-    figax.set_ylim(-50, 1150), figax.set_yticks([])
+    #fig = plt.figure(figsize=(8, 8))
+    #figax = fig.add_axes([0, 0, 1, 1], frameon=True)
+    #figax.set_xlim(-50, 1150), figax.set_xticks([])
+    #figax.set_ylim(-50, 1150), figax.set_yticks([])
     #显示捕获次数
-    xtext_ani = plt.text(-40,1120,'',fontsize=12)
+    #xtext_ani = plt.text(-40,1120,'',fontsize=12)
 
     workbook = load_workbook(filename="Avoid eagle version two.xlsx")
     sheet3 = workbook.active
@@ -317,8 +319,8 @@ for Num in range(3,103):
     initBoids()
     eagle = initEagle()
 
-    scatter_boid = figax.scatter(boidx,boidy)  
-    scatter_eagle = figax.scatter(eaglex,eagley,c='red') 
+    #scatter_boid = figax.scatter(boidx,boidy)  
+    #scatter_eagle = figax.scatter(eaglex,eagley,c='red') 
 
 
 
@@ -330,6 +332,7 @@ for Num in range(3,103):
         global boidp
         global boidq
         global score
+        global check
         boidp=[]
         boidq=[]
         #boidp.append([x_target,y_target])
@@ -368,7 +371,7 @@ for Num in range(3,103):
         #catchscore(eagle,boids)
         #score = count/loop_time
         #xtext_ani.set_text('score={:.2%}'.format(score))
-        xtext_ani.set_text('score={:}'.format(loop_time))
+        #xtext_ani.set_text('score={:}'.format(loop_time))
         #if loop_time == 300:
         count += catchscore(eagle,boids)
         if count == numberofcatch:
@@ -376,24 +379,31 @@ for Num in range(3,103):
             #sheet[Char+str(Num)] = score*100
             sheet3[Char+str(Num)] = loop_time
             workbook.save(filename="Avoid eagle version two.xlsx")
-            plt.close()
+            #plt.close()
+            check = 1
+            print(Num)
         
         return boidp,boidx,boidy,boidq
         
     def animate(frame):
         update(frame)
-        scatter_boid.set_offsets(boidp)
-        scatter_eagle.set_offsets(boidq)
+        #scatter_boid.set_offsets(boidp)
+        #scatter_eagle.set_offsets(boidq)
         return
     
     def rangecheck(eagle):
+        global check
         if eagle[x] <= -75 or eagle[x] >= width + 75:
-            plt.close()
+            #plt.close()
+            check = 1
         if eagle[y] <= -75 or eagle[y] >= height + 75:
-            plt.close()
+            #plt.close()
+            check = 1
         return
-
-    animation = FuncAnimation(fig, animate, interval=1)
-
-
-    plt.show()
+    
+    while check != 1:
+        animate(frame)
+    #animation = FuncAnimation(fig,animate, interval=1)
+    if check == 1:
+        continue
+    #plt.show()
