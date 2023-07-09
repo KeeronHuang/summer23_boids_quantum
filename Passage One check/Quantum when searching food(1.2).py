@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(2,52):
+for Num in range(2,5):
 
     width = 400
     height = 400
     numBoids =100
     visualRange_bird = 75
     touchRange_bird = 20
-    Char = "A"
+    Char = "H"
     boids={}
     ax = complex(0,1)
     ay = complex(0,1)
@@ -33,7 +33,7 @@ for Num in range(2,52):
     omega = 1.08*(m**(1/3)*g**(1/2)*b**(-1)*S**(-1/4)*p**(-1/3))*2*math.pi # frequency of the wave function
     boidx=[]
     boidy=[] #if want to show the track of the bird
-    Acc=0
+    Acc=0.2
 
     X_target = -200
     Y_target = -200
@@ -45,7 +45,7 @@ for Num in range(2,52):
     totaltime = 0
 
     workbook = load_workbook(filename="Modified Quantum(1).xlsx")
-    sheet1 = workbook.active
+    sheet2 = workbook.active
 
     fig = plt.figure(figsize=(8, 8))
     figax = fig.add_axes([0, 0, 1, 1], frameon=True)
@@ -84,23 +84,23 @@ for Num in range(2,52):
     def acceleration(boid):
         BoidsInRange = 0
         wave = 340/20
-        cofact = 0.1 # reduce the influency of other birds on phi
+        #cofact = 0.1 # reduce the influency of other birds on phi
         axTotal = complex(0,0)
         ayTotal = complex(0,0)
         phasechange(boid)
         for i in range(0,numBoids):
             if distance(boid,boids[i])<touchRange_bird:
-                axTotal += TransToComplex((distanceX(boid,boids[i])/wave)*2*math.pi + boids[i][phix],cofact)
-                ayTotal += TransToComplex((distanceY(boid,boids[i])/wave)*2*math.pi + boids[i][phiy],cofact)
+                axTotal += TransToComplex((abs(distanceX(boid,boids[i]))/wave)*2*math.pi + boids[i][phix],Acc)
+                ayTotal += TransToComplex((abs(distanceY(boid,boids[i]))/wave)*2*math.pi + boids[i][phiy],Acc)
                 BoidsInRange += 1
 
-        boid[ax] = (axTotal/BoidsInRange+TransToComplex(boid[phix],cofact))
-        boid[ay] = (ayTotal/BoidsInRange+TransToComplex(boid[phiy],cofact))
+        boid[ax] = (axTotal/BoidsInRange+TransToComplex(boid[phix],Acc))
+        boid[ay] = (ayTotal/BoidsInRange+TransToComplex(boid[phiy],Acc))
         return
 
     def phasechange(boid):
-        boid[phix] += omega*0.035
-        boid[phiy] += omega*0.035
+        boid[phix] += omega*0.05
+        boid[phiy] += omega*0.05
         boid[phix] = boid[phix] % 2 * math.pi
         boid[phiy] = boid[phiy] % 2 * math.pi
         return
@@ -215,7 +215,7 @@ for Num in range(2,52):
             loop_time += 1
         else:
             totaltime += 0.035
-            if totaltime >= 5:
+            if totaltime >= 3:
                 mouse_move()
         boidp=[]
         boidp.append([X_target,Y_target])
@@ -241,7 +241,7 @@ for Num in range(2,52):
         flag += numNearFood(boids)
         if flag == 1 :
             #print(loop_time)
-            sheet1[Char+str(Num)] = loop_time
+            sheet2[Char+str(Num)] = loop_time
             workbook.save(filename="Modified Quantum(1).xlsx")
             plt.close()
 
@@ -265,8 +265,8 @@ for Num in range(2,52):
         global X_target
         global Y_target
         global point
-        X_target = 200
-        Y_target = 200
+        X_target = 50
+        Y_target = 100
         point = 1
 
         figax.scatter(X_target,Y_target,c='pink')
@@ -295,7 +295,7 @@ for Num in range(2,52):
         #timer.add_callback(fig.canvas.mpl_connect('draw_event', mouse_move))
         #cid = fig.canvas.mpl_connect('draw_event', mouse_move)
 
-    animation = FuncAnimation(fig, animate, interval=35)
+    animation = FuncAnimation(fig, animate, interval=50)
 
 
 

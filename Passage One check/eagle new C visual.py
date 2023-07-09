@@ -13,10 +13,10 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,53):
+for Num in range(3,7):
 
-    width = 1100
-    height = 1100
+    width = 700
+    height = 700
     numBoids =100
     visualRange_bird = 75
     visualRange_eagle = 145
@@ -47,8 +47,8 @@ for Num in range(3,53):
     boidy=[] #if want to show the track of the bird
     eaglex=[]
     eagley=[]
-    Char = "AQ"
-    Acc=0.025
+    Char = "EE"
+    Acc=0.25
     numberofcatch = 3
     maxspeed_eagle = 20
     minspeed_eagle = 10
@@ -65,19 +65,19 @@ for Num in range(3,53):
     #initial plot
     fig = plt.figure(figsize=(8, 8))
     figax = fig.add_axes([0, 0, 1, 1], frameon=True)
-    figax.set_xlim(-50, 1150), figax.set_xticks([])
-    figax.set_ylim(-50, 1150), figax.set_yticks([])
+    figax.set_xlim(-50, 750), figax.set_xticks([])
+    figax.set_ylim(-50, 750), figax.set_yticks([])
     #显示捕获次数
     xtext_ani = plt.text(-40,1120,'',fontsize=12)
 
-    workbook = load_workbook(filename="Modified Quantum(2).xlsx")
-    sheet1 = workbook.active
+    workbook = load_workbook(filename="Modified Quantum(1).xlsx")
+    sheet4 = workbook.active
 
     def initBoids():
         for i in range (0,numBoids):
             boids[i] = {
                 x : random.random() * (width-50)+50,
-                y : random.random() * height,
+                y : random.random() * (height-25)+25,
                 dx : random.random()*10-5,
                 dy : random.random()*10-5,
                 #a : complex(0,random.random()*10),
@@ -92,7 +92,7 @@ for Num in range(3,53):
         return
     #Initialize Eagle structure
     def initEagle():
-        eagle={ x:random.choice([0]), y:random.choice([0]), dx:random.random()*1/2 , dy:random.random()*1/2,
+        eagle={ x:random.choice([0]), y:random.choice(range(0,height)), dx:random.random()*1/2 , dy:random.random()*1/2,
             history:[]}
         eaglex.append(eagle[x])
         eagley.append(eagle[y])
@@ -378,9 +378,9 @@ for Num in range(3,53):
         if count == numberofcatch:
             #print('score={:.2%}'.format(score))
             #sheet[Char+str(Num)] = score*100
-            sheet1[Char+str(Num)] = loop_time
-            workbook.save(filename="Modified Quantum(2).xlsx")
-            plt.close()
+            sheet4[Char+str(Num)] = loop_time
+            workbook.save(filename="Modified Quantum(1).xlsx")
+            #plt.close()
         return boidp,boidx,boidy,boidq
         
     def animate(frame):

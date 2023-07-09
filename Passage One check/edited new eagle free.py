@@ -13,15 +13,15 @@ import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,53):
+for Num in range(3,7):
 
-    width = 1100
-    height = 1100
+    width = 8000
+    height = 8000
     numBoids =100
     visualRange_bird = 75
-    visualRange_eagle = 145
+    visualRange_eagle = 90
     touchRange_bird = 20
-    catchrange = 10
+    catchrange = 20
     boids={}
     ax = complex(1,1)
     ay = complex(1,1)
@@ -47,10 +47,9 @@ for Num in range(3,53):
     boidy=[] #if want to show the track of the bird
     eaglex=[]
     eagley=[]
-    Char = "AM"
-    Acc=0.125
-    numberofcatch = 3
-    maxspeed_eagle = 20
+    Char = "X"
+    Acc=0.075
+    maxspeed_eagle = 25
     minspeed_eagle = 10
 
     global scatter_boid,scatter_eagle
@@ -61,25 +60,23 @@ for Num in range(3,53):
     point = 0
     loop_time = 0
     v = 0
-    check = 0
-    frame = 0
 
     #initial plot
-    #fig = plt.figure(figsize=(8, 8))
-    #figax = fig.add_axes([0, 0, 1, 1], frameon=True)
-    #figax.set_xlim(-50, 1150), figax.set_xticks([])
-    #figax.set_ylim(-50, 1150), figax.set_yticks([])
+    fig = plt.figure(figsize=(8, 8))
+    figax = fig.add_axes([0, 0, 1, 1], frameon=True)
+    figax.set_xlim(-50, 8050), figax.set_xticks([])
+    figax.set_ylim(-50, 8050), figax.set_yticks([])
     #显示捕获次数
-    #xtext_ani = plt.text(-40,1120,'',fontsize=12)
+    xtext_ani = plt.text(-40,8020,'',fontsize=12)
 
-    workbook = load_workbook(filename="Avoid eagle version two.xlsx")
-    sheet3 = workbook.active
+    workbook = load_workbook(filename="Modified Quantum(2).xlsx")
+    sheet = workbook.active
 
     def initBoids():
         for i in range (0,numBoids):
             boids[i] = {
-                x : random.random() * (width-50)+50,
-                y : random.random() * height,
+                x : random.random() * width/2/2/2+2000,
+                y : random.random() * height/2/2/2+2000,
                 dx : random.random()*10-5,
                 dy : random.random()*10-5,
                 #a : complex(0,random.random()*10),
@@ -132,7 +129,7 @@ for Num in range(3,53):
             return
 
     def phasechange(boid):
-            boid[phi] += omega*0.001
+            boid[phi] += omega*0.005
             boid[phi] = boid[phi] % 2 * math.pi
             return
         
@@ -143,28 +140,22 @@ for Num in range(3,53):
             zero = 0
             delta = TransToComplex((distance(boid,boids[i])/wavelength)*2*math.pi + boids[i][phi],Acc)
             if diffy == zero and diffx > zero:
-                boid[ax] += -delta * coefficient(distance(boid,boids[i]))
+                boid[ax] += -delta
             elif diffy == zero and diffx < zero:
-                boid[ax] += +delta * coefficient(distance(boid,boids[i]))
+                boid[ax] += +delta
             elif diffx == zero and diffy > zero:
-                boid[ay] += -delta * coefficient(distance(boid,boids[i]))
+                boid[ay] += -delta
             elif diffx == zero and diffy < zero:
-                boid[ay] += +delta * coefficient(distance(boid,boids[i]))
+                boid[ay] += +delta
             elif diffx == zero and diffy == zero:
                 return
             else:
                 alpha = math.atan(abs(diffy)/abs(diffx))
                 deltax = TransToComplex((distance(boid,boids[i])/wavelength)*2*math.pi + boids[i][phi],Acc) * math.cos(alpha)
                 deltay = TransToComplex((distance(boid,boids[i])/wavelength)*2*math.pi + boids[i][phi],Acc) * math.sin(alpha)
-                boid[ax] += coefficient(distance(boid,boids[i])) * deltax * (-abs(diffx)/diffx)
-                boid[ay] += coefficient(distance(boid,boids[i])) * deltay * (-abs(diffy)/diffy)
+                boid[ax] += deltax * (-abs(diffx)/diffx)
+                boid[ay] += deltay * (-abs(diffy)/diffy)
             return
-    
-    def coefficient(z):
-        #equation for exponential damping: e^(-t/torque)
-        relative_dis = touchRange_bird
-        coeffi = -z/relative_dis
-        return math.e**coeffi
 
     #Defining the predation behavior of eagles
     def catchbird(eagle):
@@ -186,7 +177,7 @@ for Num in range(3,53):
         return
     
     def avoideagle(boid,eagle):
-        avoideagle_F = 0.15
+        avoideagle_F = 0.12
         if distance(boid,eagle)<visualRange_bird:
             boid[dx] -= (eagle[x]-boid[x]) * avoideagle_F
             boid[dy] -= (eagle[y]-boid[y]) * avoideagle_F
@@ -230,22 +221,17 @@ for Num in range(3,53):
         
 
     def catchscore(eagle,boids):
-        #global flag             #表示捕捉成功：只要catchrange内有鸟就算成功
+        global flag             #表示捕捉成功：只要catchrange内有鸟就算成功
         global catchrange
-        flag = 0
-        catchrange = 10
+        #catchrange = 15
         for boid in boids:
             if distance(eagle,boids[boid]) < catchrange:
                 #flag = 1
                 boids[boid][life] -= 1
-                if boids[boid][life] <= 0:
+                if boids[boid][life] == 0:
                     flag = 1
-                    boids[boid][x] = -9999
-                    boids[boid][y] = -9999
-                    boids[boid][dx] = 0
-                    boids[boid][dy] = 0
-                    return flag
-        return flag
+                    return
+        return
 
     def keepWithinBounds(boid,turnFactor):
         margin=0
@@ -319,8 +305,8 @@ for Num in range(3,53):
     initBoids()
     eagle = initEagle()
 
-    #scatter_boid = figax.scatter(boidx,boidy)  
-    #scatter_eagle = figax.scatter(eaglex,eagley,c='red') 
+    scatter_boid = figax.scatter(boidx,boidy)  
+    scatter_eagle = figax.scatter(eaglex,eagley,c='red') 
 
 
 
@@ -332,7 +318,6 @@ for Num in range(3,53):
         global boidp
         global boidq
         global score
-        global check
         boidp=[]
         boidq=[]
         #boidp.append([x_target,y_target])
@@ -355,8 +340,8 @@ for Num in range(3,53):
             boidy.append(boid[y])
             boidp.append([boid[x],boid[y]])
         catchbird(eagle)
-        limitSpeed(eagle,maxspeed_eagle)
-        #keepWithinBounds(eagle,12)
+        #limitSpeed(eagle,maxspeed_eagle)
+        keepWithinBounds(eagle,12)
         #limitSpeed(eagle,maxspeed_eagle)
         #limitSpeed(boid,15)
         eagle[x] += eagle[dx]
@@ -366,44 +351,28 @@ for Num in range(3,53):
         eagley=[]
         eagley.append(eagle[y])
         boidq.append([eagle[x],eagle[y]])
-        rangecheck(eagle)
-        
-        #catchscore(eagle,boids)
+
+        #count += catchscore(eagle,boids)
+        catchscore(eagle,boids)
         #score = count/loop_time
         #xtext_ani.set_text('score={:.2%}'.format(score))
-        #xtext_ani.set_text('score={:}'.format(loop_time))
+        xtext_ani.set_text('score={:}'.format(loop_time))
         #if loop_time == 300:
-        count += catchscore(eagle,boids)
-        if count == numberofcatch:
+        if flag:
             #print('score={:.2%}'.format(score))
             #sheet[Char+str(Num)] = score*100
-            sheet3[Char+str(Num)] = loop_time
-            workbook.save(filename="Avoid eagle version two.xlsx")
-            #plt.close()
-            check = 1
-            print(Num)
-        
+            sheet[Char+str(Num)] = loop_time
+            workbook.save(filename="Modified Quantum(2).xlsx")
+            plt.close()
         return boidp,boidx,boidy,boidq
         
     def animate(frame):
         update(frame)
-        #scatter_boid.set_offsets(boidp)
-        #scatter_eagle.set_offsets(boidq)
+        scatter_boid.set_offsets(boidp)
+        scatter_eagle.set_offsets(boidq)
         return
-    
-    def rangecheck(eagle):
-        global check
-        if eagle[x] <= -75 or eagle[x] >= width + 75:
-            #plt.close()
-            check = 1
-        if eagle[y] <= -75 or eagle[y] >= height + 75:
-            #plt.close()
-            check = 1
-        return
-    
-    while check != 1:
-        animate(frame)
-    #animation = FuncAnimation(fig,animate, interval=1)
-    if check == 1:
-        continue
-    #plt.show()
+
+    animation = FuncAnimation(fig, animate, interval=5)
+
+
+    plt.show()

@@ -14,7 +14,7 @@ for Num in range(2,52):
     numBoids =100
     visualRange_bird = 75
     touchRange_bird = 20
-    Char = "A"
+    Char = "B"
     boids={}
     ax = complex(0,1)
     ay = complex(0,1)
@@ -33,7 +33,7 @@ for Num in range(2,52):
     omega = 1.08*(m**(1/3)*g**(1/2)*b**(-1)*S**(-1/4)*p**(-1/3))*2*math.pi # frequency of the wave function
     boidx=[]
     boidy=[] #if want to show the track of the bird
-    Acc=0.05
+    Acc=0.15
 
     X_target = -200
     Y_target = -200

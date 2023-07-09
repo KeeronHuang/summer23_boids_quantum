@@ -56,9 +56,6 @@ for Num in range(3,33):
     #显示捕获次数
     xtext_ani = plt.text(-40,520,'',fontsize=12)
 
-    workbook = load_workbook(filename="Modified Quantum(2).xlsx")
-    sheet = workbook.active
-
 
     def initBoids():
         for i in range (0,numBoids):
@@ -262,11 +259,6 @@ for Num in range(3,33):
         count += catchscore(eagle,boids)
         score = count/loop_time
         xtext_ani.set_text('score={:.2%}'.format(score))
-        if loop_time == 300:
-            #print('score={:.2%}'.format(score))
-            sheet[Char+str(Num)] = score*100
-            workbook.save(filename="Modified Quantum(2).xlsx")
-            plt.close()
         return boidp,boidx,boidy,boidq
         
     def animate(frame):
