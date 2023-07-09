@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,7):
+for Num in range(3,4):
 
     width = 700
     height = 700
@@ -22,7 +22,6 @@ for Num in range(3,7):
     minspeed_eagle = 10
     Char = "EE"
     Acc=0
-    #with C 0.35
 
     boids={}
     ax = complex(1,1)
@@ -101,27 +100,29 @@ for Num in range(3,7):
         return (boid1[x]-boid2[x])
     def distanceY(boid1,boid2):
         return (boid1[y]-boid2[y])
-
+    
     def TransToComplex(theta):
-        x = 0.15 #用波函数的复数表示和复振幅表示
-        y = complex(x*np.cos(theta),-x*np.sin(theta))
-        return y
+                x = 1
+                phi = theta * 2 * math.pi
+                y = complex(x*math.cos(phi),x*math.sin(-phi))
+                return y
 
-        #Define the action function of interference behavior
     def acceleration(boid):
-            BoidsInRange = 0
-            wavelength = 340/20
-            boid[ax] = complex(0,0)
-            boid[ay] = complex(0,0)
-            phasechange(boid)
-            for i in range(0,numBoids):
-                if distance(boid,boids[i])<touchRange_bird:
-                    cal_accleration(boid,i,wavelength)
-                    BoidsInRange += 1
+                BoidsInRange = 0
+                wave = 340/20
+                axTotal = complex(0,0)
+                ayTotal = complex(0,0)
+                for i in range(0,numBoids):
+                    if distance(boid,boids[i])<touchRange_bird:
+                        dx = distanceX(boid,boids[i])
+                        dy = distanceY(boid,boids[i])
+                        axTotal += TransToComplex(dx/wave)
+                        ayTotal += TransToComplex(dy/wave)
+                        BoidsInRange += 1
 
-            boid[ax] = boid[ax]/BoidsInRange+TransToComplex(boid[phi])
-            boid[ay] = boid[ay]/BoidsInRange+TransToComplex(boid[phi])
-            return
+                boid[ax] = axTotal/BoidsInRange
+                boid[ay] = ayTotal/BoidsInRange
+                return
 
     def phasechange(boid):
             boid[phi] += omega
@@ -148,8 +149,8 @@ for Num in range(3,7):
                 alpha = math.atan(abs(diffy)/abs(diffx))
                 deltax = delta * math.cos(alpha)
                 deltay = delta * math.sin(alpha)
-                boid[ax] += coefficient(distance(boid,boids[i])) * deltax * (-abs(diffx)/diffx)
-                boid[ay] += coefficient(distance(boid,boids[i])) * deltay * (-abs(diffy)/diffy)
+                boid[ax] +=  deltax * (-abs(diffx)/diffx)
+                boid[ay] +=  deltay * (-abs(diffy)/diffy)
             return
     
     def coefficient(r):

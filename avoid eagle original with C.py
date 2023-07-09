@@ -6,10 +6,10 @@ import math
 import numpy as np
 
 #模拟时向下延伸，改动 Num 即可
-for Acc in [0,0.05,0.1,0.15,0.2,0.25,0.3,0.35]:
+for Acc in [0.14,0.21,0.28,0.35]:
     for Char in ["A","B","C"]:
-        Char = chr(ord(Char) + int((round(Acc / 0.05)) * 3))
-        for Num in range(53,203):
+        Char = chr(ord(Char) + int((round(Acc / 0.07)) * 3))
+        for Num in range(3,53):
 
             workbook = load_workbook(filename="passage_two_eagle.xlsx")
             sheet1 = workbook.active
@@ -84,7 +84,7 @@ for Acc in [0,0.05,0.1,0.15,0.2,0.25,0.3,0.35]:
                 return (boid1[y]-boid2[y])
 
             def TransToComplex(theta):
-                    x = 0.15
+                    x = 1
                     y = complex(x*np.cos(theta),-x*np.sin(theta))
                     return y
 
@@ -100,8 +100,8 @@ for Acc in [0,0.05,0.1,0.15,0.2,0.25,0.3,0.35]:
                             cal_accleration(boid,i,wavelength)
                             BoidsInRange += 1
 
-                    boid[ax] = boid[ax]/BoidsInRange+TransToComplex(boid[phi])
-                    boid[ay] = boid[ay]/BoidsInRange+TransToComplex(boid[phi])
+                    boid[ax] = (boid[ax]/BoidsInRange+TransToComplex(boid[phi]))/2
+                    boid[ay] = (boid[ay]/BoidsInRange+TransToComplex(boid[phi]))/2
                     return
 
             def phasechange(boid):
