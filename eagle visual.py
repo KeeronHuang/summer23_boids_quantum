@@ -21,7 +21,7 @@ for Num in range(3,7):
     maxspeed_eagle = 20
     minspeed_eagle = 10
     Char = "EE"
-    Acc=0.35
+    Acc=0
     #with C 0.35
 
     boids={}
@@ -68,8 +68,8 @@ for Num in range(3,7):
     #显示捕获次数
     xtext_ani = plt.text(-40,720,'',fontsize=12)
 
-    workbook = load_workbook(filename="Modified Quantum(1).xlsx")
-    sheet4 = workbook.active
+    #workbook = load_workbook(filename="Modified Quantum(1).xlsx")
+    #sheet4 = workbook.active
 
     def initBoids():
         for i in range (0,numBoids):
@@ -362,9 +362,9 @@ for Num in range(3,7):
 
         xtext_ani.set_text('score={:}'.format(loop_time))
         count += catchscore(eagle,boids)
-        if count == numberofcatch:
-            sheet4[Char+str(Num)] = loop_time
-            workbook.save(filename="Modified Quantum(1).xlsx")
+        #if count == numberofcatch:
+            #sheet4[Char+str(Num)] = loop_time
+            #workbook.save(filename="Modified Quantum(1).xlsx")
             #plt.close()
         return boidp,boidx,boidy,boidq
         

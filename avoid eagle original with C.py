@@ -6,13 +6,13 @@ import math
 import numpy as np
 
 #模拟时向下延伸，改动 Num 即可
-for Acc in [0,0.05,0.1,0.15,0.2,0.25]:
+for Acc in [0,0.05,0.1,0.15,0.2,0.25,0.3,0.35]:
     for Char in ["A","B","C"]:
         Char = chr(ord(Char) + int((round(Acc / 0.05)) * 3))
-        for Num in range(3,53):
+        for Num in range(53,203):
 
-            workbook = load_workbook(filename=".xlsx")
-            sheet = workbook.active
+            workbook = load_workbook(filename="passage_two_eagle.xlsx")
+            sheet1 = workbook.active
 
             width = 700
             height = 700
@@ -35,7 +35,7 @@ for Acc in [0,0.05,0.1,0.15,0.2,0.25]:
             y=1
             dx=2
             dy=3
-            history = 0
+            history = 4
             flag = 0
             life = 20
             phi = 5 # phase for the wave function
@@ -84,7 +84,7 @@ for Acc in [0,0.05,0.1,0.15,0.2,0.25]:
                 return (boid1[y]-boid2[y])
 
             def TransToComplex(theta):
-                    x = 1
+                    x = 0.15
                     y = complex(x*np.cos(theta),-x*np.sin(theta))
                     return y
 
@@ -145,7 +145,7 @@ for Acc in [0,0.05,0.1,0.15,0.2,0.25]:
                 min_dis_eagle = 0
                 min_boid = 0
                 for i in range(0,numBoids):
-                    if distance(boids[i],eagle) <= visualRange_eagle:
+                    #if distance(boids[i],eagle) <= visualRange_eagle:
                         if i==0:
                             min_dis_eagle = distance(boids[i],eagle)
                         else:
@@ -167,7 +167,7 @@ for Acc in [0,0.05,0.1,0.15,0.2,0.25]:
                         if point == 0:
                             point = 1
                     else:
-                        v = random.random() * 5 + 5
+                        v = random.random() * 3
                         alpha = math.atan(abs(eagle[dx])/abs(eagle[dy]))
                         deltax = v * math.cos(alpha)
                         deltay = v * math.sin(alpha)
@@ -231,7 +231,7 @@ for Acc in [0,0.05,0.1,0.15,0.2,0.25]:
                 return
             
             def avoideagle(boid,eagle):
-                avoideagle_F = 0.15
+                avoideagle_F = 0.16
                 if distance(boid,eagle)<visualRange_bird:
                     boid[dx] -= (eagle[x]-boid[x]) * avoideagle_F
                     boid[dy] -= (eagle[y]-boid[y]) * avoideagle_F
@@ -320,8 +320,8 @@ for Acc in [0,0.05,0.1,0.15,0.2,0.25]:
                 
                 count += catchscore(eagle,boids)
                 if count == numberofcatch:
-                    sheet[Char+str(Num)] = loop_time
-                    workbook.save(filename=".xlsx")
+                    sheet1[Char+str(Num)] = loop_time
+                    workbook.save(filename="passage_two_eagle.xlsx")
                     check = 1
                     print(Char+str(Num))
                 return
