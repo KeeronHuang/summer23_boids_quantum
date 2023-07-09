@@ -116,28 +116,22 @@ for Acc in [0,0.02,0.04,0.06,0.08,0.1]:
                     zero = 0
                     delta = TransToComplex(((distance(boid,boids[i])/wavelength)*2*math.pi + boids[i][phi])% 2 * math.pi)
                     if diffy == zero and diffx > zero:
-                        boid[ax] += -delta * coefficient(distance(boid,boids[i]))
+                        boid[ax] += -delta
                     elif diffy == zero and diffx < zero:
-                        boid[ax] += +delta * coefficient(distance(boid,boids[i]))
+                        boid[ax] += +delta
                     elif diffx == zero and diffy > zero:
-                        boid[ay] += -delta * coefficient(distance(boid,boids[i]))
+                        boid[ay] += -delta
                     elif diffx == zero and diffy < zero:
-                        boid[ay] += +delta * coefficient(distance(boid,boids[i]))
+                        boid[ay] += +delta
                     elif diffx == zero and diffy == zero:
                         return
                     else:
                         alpha = math.atan(abs(diffy)/abs(diffx))
                         deltax = delta * math.cos(alpha)
                         deltay = delta * math.sin(alpha)
-                        boid[ax] += coefficient(distance(boid,boids[i])) * deltax * (-abs(diffx)/diffx)
-                        boid[ay] += coefficient(distance(boid,boids[i])) * deltay * (-abs(diffy)/diffy)
+                        boid[ax] +=  deltax * (-abs(diffx)/diffx)
+                        boid[ay] +=  deltay * (-abs(diffy)/diffy)
                     return
-            
-            def coefficient(r):
-                #equation for exponential damping: e^(-t/torque)
-                relative_dis = touchRange_bird
-                coeffi = -r/relative_dis
-                return math.e**coeffi
 
             #Defining the predation behavior of eagles
             def catchbird(eagle):

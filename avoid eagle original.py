@@ -82,27 +82,29 @@ for Acc in [0,0.02,0.04,0.06,0.08,0.1]:
                 return (boid1[x]-boid2[x])
             def distanceY(boid1,boid2):
                 return (boid1[y]-boid2[y])
-
+            
             def TransToComplex(theta):
-                    x = 1
-                    y = complex(x*np.cos(theta),-x*np.sin(theta))
-                    return y
+                x = 1
+                phi = theta * 2 * math.pi
+                y = complex(x*math.cos(phi),x*math.sin(-phi))
+                return y
 
-                #Define the action function of interference behavior
             def acceleration(boid):
-                    BoidsInRange = 0
-                    wavelength = 340/20
-                    boid[ax] = complex(0,0)
-                    boid[ay] = complex(0,0)
-                    phasechange(boid)
-                    for i in range(0,numBoids):
-                        if distance(boid,boids[i])<touchRange_bird:
-                            cal_accleration(boid,i,wavelength)
-                            BoidsInRange += 1
+                BoidsInRange = 0
+                wave = 340/20
+                axTotal = complex(0,0)
+                ayTotal = complex(0,0)
+                for i in range(0,numBoids):
+                    if distance(boid,boids[i])<touchRange_bird:
+                        dx = distanceX(boid,boids[i])
+                        dy = distanceY(boid,boids[i])
+                        axTotal += TransToComplex(dx/wave)
+                        ayTotal += TransToComplex(dy/wave)
+                        BoidsInRange += 1
 
-                    boid[ax] = (boid[ax]/BoidsInRange+TransToComplex(boid[phi]))/2
-                    boid[ay] = (boid[ay]/BoidsInRange+TransToComplex(boid[phi]))/2
-                    return
+                boid[ax] = axTotal/BoidsInRange
+                boid[ay] = ayTotal/BoidsInRange
+                return
 
             def phasechange(boid):
                     boid[phi] += omega
@@ -116,28 +118,22 @@ for Acc in [0,0.02,0.04,0.06,0.08,0.1]:
                     zero = 0
                     delta = TransToComplex(((distance(boid,boids[i])/wavelength)*2*math.pi + boids[i][phi])% 2 * math.pi)
                     if diffy == zero and diffx > zero:
-                        boid[ax] += -delta * coefficient(distance(boid,boids[i]))
+                        boid[ax] += -delta
                     elif diffy == zero and diffx < zero:
-                        boid[ax] += +delta * coefficient(distance(boid,boids[i]))
+                        boid[ax] += +delta
                     elif diffx == zero and diffy > zero:
-                        boid[ay] += -delta * coefficient(distance(boid,boids[i]))
+                        boid[ay] += -delta
                     elif diffx == zero and diffy < zero:
-                        boid[ay] += +delta * coefficient(distance(boid,boids[i]))
+                        boid[ay] += +delta
                     elif diffx == zero and diffy == zero:
                         return
                     else:
                         alpha = math.atan(abs(diffy)/abs(diffx))
                         deltax = delta * math.cos(alpha)
                         deltay = delta * math.sin(alpha)
-                        boid[ax] += coefficient(distance(boid,boids[i])) * deltax * (-abs(diffx)/diffx)
-                        boid[ay] += coefficient(distance(boid,boids[i])) * deltay * (-abs(diffy)/diffy)
+                        boid[ax] +=  deltax * (-abs(diffx)/diffx)
+                        boid[ay] +=  deltay * (-abs(diffy)/diffy)
                     return
-            
-            def coefficient(r):
-                #equation for exponential damping: e^(-t/torque)
-                relative_dis = touchRange_bird
-                coeffi = -r/relative_dis
-                return math.e**coeffi
 
             #Defining the predation behavior of eagles
             def catchbird(eagle):
