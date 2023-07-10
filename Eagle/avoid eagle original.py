@@ -6,21 +6,22 @@ import math
 import numpy as np
 
 #模拟时向下延伸，改动 Num 即可
-for Acc in [0,0.02,0.04,0.06,0.08,0.1]:
+for Acc in [0,0.025,0.05,0.075,0.1]:
     for Char in ["A","B","C"]:
-        Char = chr(ord(Char) + int((round(Acc / 0.02)) * 3))
-        for Num in range(3,53):
+        Char = chr(ord(Char) + int((round(Acc / 0.025)) * 3))
+        for Num in range(3,20):
 
             workbook = load_workbook(filename="passage_two_eagle.xlsx")
-            sheet1 = workbook.active
+            sheet = workbook.active
 
-            width = 700
-            height = 700
+            width = 800
+            height = 800
             numBoids =100
             visualRange_bird = 75
-            visualRange_eagle = 140
+            visualRange_eagle = 110
             touchRange_bird = 30
             catchrange = 10
+            life = 20
             # define variable for eagle
             numberofcatch = 3
             maxspeed_eagle = 20
@@ -37,7 +38,6 @@ for Acc in [0,0.02,0.04,0.06,0.08,0.1]:
             dy=3
             history = 4
             flag = 0
-            life = 20
             phi = 5 # phase for the wave function
 
             #calculate the frequency of the wave function
@@ -163,12 +163,8 @@ for Acc in [0,0.02,0.04,0.06,0.08,0.1]:
                         if point == 0:
                             point = 1
                     else:
-                        v = random.random() * 3
-                        alpha = math.atan(abs(eagle[dx])/abs(eagle[dy]))
-                        deltax = v * math.cos(alpha)
-                        deltay = v * math.sin(alpha)
-                        eagle[dx] = deltax * (abs(eagle[dx])/eagle[dx])
-                        eagle[dy] = deltay * (abs(eagle[dy])/eagle[dy])
+                        eagle[dx] = 0
+                        eagle[dy] = 0
                         return
                     if v > speedlimit:
                         v = speedlimit
@@ -227,7 +223,7 @@ for Acc in [0,0.02,0.04,0.06,0.08,0.1]:
                 return
             
             def avoideagle(boid,eagle):
-                avoideagle_F = 0.16
+                avoideagle_F = 0.2
                 if distance(boid,eagle)<visualRange_bird:
                     boid[dx] -= (eagle[x]-boid[x]) * avoideagle_F
                     boid[dy] -= (eagle[y]-boid[y]) * avoideagle_F
@@ -310,13 +306,14 @@ for Acc in [0,0.02,0.04,0.06,0.08,0.1]:
                     boid[dy] += Acc*abs(boid[ay])*abs(boid[ay])
                 catchbird(eagle) #change the speed of the eagle
                 limitSpeed(eagle,maxspeed_eagle)
+                keepWithinBounds(eagle,12)
                 eagle[x] += eagle[dx]
                 eagle[y] += eagle[dy]
                 rangecheck(eagle)
                 
                 count += catchscore(eagle,boids)
                 if count == numberofcatch:
-                    sheet1[Char+str(Num)] = loop_time
+                    sheet[Char+str(Num)] = loop_time
                     workbook.save(filename="passage_two_eagle.xlsx")
                     check = 1
                     print(Char+str(Num))
