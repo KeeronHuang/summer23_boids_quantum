@@ -141,7 +141,7 @@ for Acc in [0,0.01,0.02,0.03,0.04]:
             def coefficient(r):
                 #equation for exponential damping: e^(-t/torque)
                 relative_dis = touchRange_bird
-                coeffi = -r/relative_dis
+                coeffi = -(r-relative_dis/2)/relative_dis
                 return math.e**coeffi
 
             #Keep the Boids inside the window

@@ -12,8 +12,9 @@ for Num in range(2,12):
     Acc=0
     foodrange = 30
     foodtime = 600
-    width = 400
-    height = 400
+    attractingfactor = 0.1
+    width = 500
+    height = 500
 
     numBoids =100
     visualRange_bird = 75
@@ -57,8 +58,8 @@ for Num in range(2,12):
 
     fig = plt.figure(figsize=(8, 8))
     figax = fig.add_axes([0, 0, 1, 1], frameon=True)
-    figax.set_xlim(-50, 450), figax.set_xticks([])
-    figax.set_ylim(-50, 450), figax.set_yticks([])
+    figax.set_xlim(-50, 550), figax.set_xticks([])
+    figax.set_ylim(-50, 550), figax.set_yticks([])
 
     def initBoids():
         for i in range (0,numBoids):
@@ -141,32 +142,16 @@ for Num in range(2,12):
 
     #Keep the Boids inside the window
     def keepWithinBounds(boid):
-        margin=20
-        turnfactor = 5
+        margin=0
+        turnFactor = 7
         if boid[x] < margin :
-            boid[x] = width
-            if boid[dx] <= 3:
-                boid[dx] += turnfactor
-            if boid[dy] <= 3:
-                boid[dy] += turnfactor
+            boid[dx] += turnFactor
         if boid[x] > width - margin :
-            boid[x] = margin
-            if boid[dx] <= 3:
-                boid[dx] += turnfactor
-            if boid[dy] <= 3:
-                boid[dy] += turnfactor
+            boid[dx] -= turnFactor
         if boid[y] < margin: 
-            boid[y] = height
-            if boid[dx] <= 3:
-                boid[dx] += turnfactor
-            if boid[dy] <= 3:
-                boid[dy] += turnfactor
+            boid[dy] += turnFactor  
         if boid[y] > height - margin :
-            boid[y] = margin
-            if boid[dx] <= 3:
-                boid[dx] += turnfactor
-            if boid[dy] <= 3:
-                boid[dy] += turnfactor
+            boid[dy] -= turnFactor
         return
 
     def flyTowardsCenter(boid):
@@ -219,7 +204,6 @@ for Num in range(2,12):
         return
     #Defining the foraging behavior of boids
     def attraction(boid,x_target,y_target):
-        attractingfactor = 0.1
         a=[x_target,y_target]
         moveX = 0
         moveY = 0

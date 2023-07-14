@@ -86,28 +86,59 @@ for Num in range(2,12):
         return (boid2[y]-boid1[y])
 
     def TransToComplex(theta):
-                    x = 1
-                    phi = theta * 2 * math.pi
-                    y = complex(x*math.cos(phi),x*math.sin(-phi))
-                    return y
+        y = complex(math.cos(theta),-math.sin(theta))
+        return y
 
-            
+    #Define the action function of interference behavior
     def acceleration(boid):
-                BoidsInRange = 0
-                wave = 340/20
-                axTotal = complex(0,0)
-                ayTotal = complex(0,0)
-                for i in range(0,numBoids):
-                    if distance(boid,boids[i])<touchRange_bird:
-                        dx = distanceX(boid,boids[i])
-                        dy = distanceY(boid,boids[i])
-                        axTotal += TransToComplex(dx/wave)
-                        ayTotal += TransToComplex(dy/wave)
-                        BoidsInRange += 1
+        BoidsInRange = 0
+        wavelength = 340/20
+        boid[ax] = complex(0,0)
+        boid[ay] = complex(0,0)
+        phasechange(boid)
+        for i in range(0,numBoids):
+            if distance(boid,boids[i])<touchRange_bird:
+                cal_accleration(boid,i,wavelength)
+                BoidsInRange += 1
 
-                boid[ax] = axTotal/BoidsInRange
-                boid[ay] = ayTotal/BoidsInRange
-                return
+        boid[ax] = (boid[ax]/BoidsInRange+TransToComplex(boid[phi]))/2
+        boid[ay] = (boid[ay]/BoidsInRange+TransToComplex(boid[phi]))/2
+        return
+
+    def phasechange(boid):
+        boid[phi] += omega
+        boid[phi] = boid[phi] % 2 * math.pi
+        return
+    
+    def cal_accleration(boid,i,wavelength):
+        # Calculating alpha between two birds.
+        diffy = boids[i][y]-boid[y]
+        diffx = boids[i][x]-boid[x]
+        zero = 0
+        delta = TransToComplex(((distance(boid,boids[i])/wavelength)*2*math.pi + boids[i][phi])% 2 * math.pi)
+        if diffy == zero and diffx > zero:
+            boid[ax] += -delta * coefficient(distance(boid,boids[i]))
+        elif diffy == zero and diffx < zero:
+            boid[ax] += +delta * coefficient(distance(boid,boids[i]))
+        elif diffx == zero and diffy > zero:
+            boid[ay] += -delta * coefficient(distance(boid,boids[i]))
+        elif diffx == zero and diffy < zero:
+            boid[ay] += +delta * coefficient(distance(boid,boids[i]))
+        elif diffx == zero and diffy == zero:
+            return
+        else:
+            alpha = math.atan(abs(diffy)/abs(diffx))
+            deltax = delta * math.cos(alpha)
+            deltay = delta * math.sin(alpha)
+            boid[ax] += coefficient(distance(boid,boids[i]))*deltax * (-abs(diffx)/diffx)
+            boid[ay] += coefficient(distance(boid,boids[i]))*deltay * (-abs(diffy)/diffy)
+        return
+    
+    def coefficient(r):
+        #equation for exponential damping: e^(-t/torque)
+        relative_dis = touchRange_bird
+        coeffi = -(r-relative_dis/2)/relative_dis
+        return math.e**coeffi
 
     #Keep the Boids inside the window
     def keepWithinBounds(boid):
@@ -281,8 +312,8 @@ for Num in range(2,12):
         global X_target
         global Y_target
         #global point
-        X_target = random.choice(range(int(width/2-50),int(width/2+50)))
-        Y_target = random.choice(range(int(height/2-50),int(height/2+50)))
+        X_target = random.choice(range(round(width/2-50),round(width/2+50)))
+        Y_target = random.choice(range(round(width/2-50),round(width/2+50)))
         #point = 1
 
         figax.scatter(X_target,Y_target,c='pink')
