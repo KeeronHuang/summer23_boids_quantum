@@ -1,21 +1,25 @@
 import random
 from openpyxl import load_workbook
 import math
-import cmath
-import numpy as np
+#import cmath
+#import numpy as np
 import matplotlib.pyplot as plt
 #import pyglet as pg
 from matplotlib.animation import FuncAnimation
 
-for Num in range(2,3):
+for Num in range(2,12):
 
-    Acc=0.04
-    width = 500
-    height = 500
+    Acc=0
+    foodrange = 30
+    foodtime = 600
+    width = 400
+    height = 400
+
     numBoids =100
     visualRange_bird = 75
     touchRange_bird = 30
-    Char = "G"
+
+    Char = "A"
     boids={}
     #a = complex(0,1)
     ax = complex(0,1)
@@ -53,8 +57,8 @@ for Num in range(2,3):
 
     fig = plt.figure(figsize=(8, 8))
     figax = fig.add_axes([0, 0, 1, 1], frameon=True)
-    figax.set_xlim(-50, 550), figax.set_xticks([])
-    figax.set_ylim(-50, 550), figax.set_yticks([])
+    figax.set_xlim(-50, 450), figax.set_xticks([])
+    figax.set_ylim(-50, 450), figax.set_yticks([])
 
     def initBoids():
         for i in range (0,numBoids):
@@ -137,16 +141,32 @@ for Num in range(2,3):
 
     #Keep the Boids inside the window
     def keepWithinBounds(boid):
-        margin=0
-        turnFactor = 7
+        margin=20
+        turnfactor = 5
         if boid[x] < margin :
-            boid[dx] += turnFactor
+            boid[x] = width
+            if boid[dx] <= 3:
+                boid[dx] += turnfactor
+            if boid[dy] <= 3:
+                boid[dy] += turnfactor
         if boid[x] > width - margin :
-            boid[dx] -= turnFactor
+            boid[x] = margin
+            if boid[dx] <= 3:
+                boid[dx] += turnfactor
+            if boid[dy] <= 3:
+                boid[dy] += turnfactor
         if boid[y] < margin: 
-            boid[dy] += turnFactor  
+            boid[y] = height
+            if boid[dx] <= 3:
+                boid[dx] += turnfactor
+            if boid[dy] <= 3:
+                boid[dy] += turnfactor
         if boid[y] > height - margin :
-            boid[dy] -= turnFactor
+            boid[y] = margin
+            if boid[dx] <= 3:
+                boid[dx] += turnfactor
+            if boid[dy] <= 3:
+                boid[dy] += turnfactor
         return
 
     def flyTowardsCenter(boid):
@@ -228,14 +248,14 @@ for Num in range(2,3):
         global num
         for i in range(0,numBoids):
             distance = math.sqrt( (boids[i][x] - X_target) * (boids[i][x] - X_target) +(boids[i][y] - Y_target) * (boids[i][y] - Y_target))
-            if distance <= 25:
+            if distance <= foodrange:
                 num += 1
                 if num == 1:
                     point = 1
                 #if num >= 6:
                     #flag = 1
                     #return flag
-        if num > 300:
+        if num > foodtime:
             flag = 1
         return flag
     
@@ -258,7 +278,7 @@ for Num in range(2,3):
                 #flag = 1
         else:
             totaltime += 0.001
-            if totaltime > 0.086 and totaltime < 0.087:
+            if totaltime > 0.150 and totaltime < 0.151:
                 mouse_move()
         boidp=[]
         boidp.append([X_target,Y_target])
@@ -283,7 +303,7 @@ for Num in range(2,3):
         
         flag += numNearFood(boids)
         if flag == 1 :
-            print(Num)
+            print(loop_time)
             sheet[Char+str(Num)] = loop_time
             workbook.save(filename="draft.xlsx")
             #plt.close()
@@ -308,8 +328,8 @@ for Num in range(2,3):
         global X_target
         global Y_target
         #global point
-        X_target = random.choice(range(250,350))
-        Y_target = random.choice(range(250,350))
+        X_target = random.choice(range(round(width/2-50),round(width/2+50)))
+        Y_target = random.choice(range(round(width/2-50),round(width/2+50)))
         #point = 1
 
         figax.scatter(X_target,Y_target,c='pink')

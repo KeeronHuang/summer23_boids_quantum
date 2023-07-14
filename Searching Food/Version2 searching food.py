@@ -1,23 +1,23 @@
 import random
 from openpyxl import load_workbook
 import math
-import cmath
-import numpy as np
-import matplotlib.pyplot as plt
+#import cmath
+#import numpy as np
+#import matplotlib.pyplot as plt
 #import pyglet as pg
-from matplotlib.animation import FuncAnimation
+#from matplotlib.animation import FuncAnimation
 
 
-for Acc in [0,0.01,0.02]:
+for Acc in [0,0.01,0.02,0.03,0.04]:
     for Char in ["A","B","C"]:
         Char = chr(ord(Char) + int((round(Acc / 0.01)) * 3))
-        for Num in range(53,73):
+        for Num in range(3,23):
 
             foodrange = 30
             foodtime = 600
 
-            width = 450
-            height = 450
+            width = 400
+            height = 400
             numBoids =100
             visualRange_bird = 75
             touchRange_bird = 30
@@ -57,7 +57,7 @@ for Acc in [0,0.01,0.02]:
             frame = 0
 
             workbook = load_workbook(filename="searching food.xlsx")
-            sheet3 = workbook.active
+            sheet = workbook.active
 
             #fig = plt.figure(figsize=(8, 8))
             #figax = fig.add_axes([0, 0, 1, 1], frameon=True)
@@ -145,16 +145,32 @@ for Acc in [0,0.01,0.02]:
 
             #Keep the Boids inside the window
             def keepWithinBounds(boid):
-                margin=0
-                turnFactor = 7
+                margin=20
+                turnfactor = 5
                 if boid[x] < margin :
-                    boid[dx] += turnFactor
+                    boid[x] = width
+                    if boid[dx] <= 3:
+                        boid[dx] += turnfactor
+                    if boid[dy] <= 3:
+                        boid[dy] += turnfactor
                 if boid[x] > width - margin :
-                    boid[dx] -= turnFactor
+                    boid[x] = margin
+                    if boid[dx] <= 3:
+                        boid[dx] += turnfactor
+                    if boid[dy] <= 3:
+                        boid[dy] += turnfactor
                 if boid[y] < margin: 
-                    boid[dy] += turnFactor  
+                    boid[y] = height
+                    if boid[dx] <= 3:
+                        boid[dx] += turnfactor
+                    if boid[dy] <= 3:
+                        boid[dy] += turnfactor
                 if boid[y] > height - margin :
-                    boid[dy] -= turnFactor
+                    boid[y] = margin
+                    if boid[dx] <= 3:
+                        boid[dx] += turnfactor
+                    if boid[dy] <= 3:
+                        boid[dy] += turnfactor
                 return
 
             def flyTowardsCenter(boid):
@@ -293,7 +309,7 @@ for Acc in [0,0.01,0.02]:
                 flag += numNearFood(boids)
                 if flag == 1 :
                     print(Char+str(Num))
-                    sheet3[Char+str(Num)] = loop_time
+                    sheet[Char+str(Num)] = loop_time
                     workbook.save(filename="searching food.xlsx")
                     check = 1
                     #plt.close()
@@ -318,8 +334,8 @@ for Acc in [0,0.01,0.02]:
                 global X_target
                 global Y_target
                 #global point
-                X_target = random.choice(range(round(width/2-50),round(width/2+50)))
-                Y_target = random.choice(range(round(height/2-50),round(height/2+50)))
+                X_target = random.choice(range(int(width/2-50),int(width/2+50)))
+                Y_target = random.choice(range(int(height/2-50),int(height/2+50)))
                 #point = 1
 
                 #figax.scatter(X_target,Y_target,c='pink')
