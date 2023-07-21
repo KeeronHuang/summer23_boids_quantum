@@ -1,23 +1,17 @@
 import random
 from openpyxl import load_workbook
 import math
-#import cmath
-#import numpy as np
-#import matplotlib.pyplot as plt
-#import pyglet as pg
-#from matplotlib.animation import FuncAnimation
-
 
 for Acc in [0,0.01,0.02,0.03,0.04]:
     for Char in ["A","B","C"]:
         Char = chr(ord(Char) + int((round(Acc / 0.01)) * 3))
-        for Num in range(3,23):
+        for Num in range(3,20):
 
             foodrange = 30
             foodtime = 600
             
-            width = 400
-            height = 400
+            width = 500
+            height = 500
             numBoids =100
             visualRange_bird = 75
             touchRange_bird = 30
@@ -50,19 +44,13 @@ for Acc in [0,0.01,0.02,0.03,0.04]:
             totaltime = 0
             alpha = 0
             counter = 0
-            #num_max = 0
             num = 0
 
             check = 0
             frame = 0
 
-            workbook = load_workbook(filename="searching food.xlsx")
+            workbook = load_workbook(filename="")
             sheet = workbook.active
-
-            #fig = plt.figure(figsize=(8, 8))
-            #figax = fig.add_axes([0, 0, 1, 1], frameon=True)
-            #figax.set_xlim(-50, 450), figax.set_xticks([])
-            #figax.set_ylim(-50, 450), figax.set_yticks([])
 
             def initBoids():
                 for i in range (0,numBoids):
@@ -71,7 +59,6 @@ for Acc in [0,0.01,0.02,0.03,0.04]:
                         y : random.random() * height,
                         dx : random.random()*10-5,
                         dy : random.random()*10-5,
-                        #a : complex(0,random.random()*10),
                         ax : complex(0,random.random()*10),
                         ay : complex(0,random.random()*10),
                         phi : random.random()*math.pi*2, # ranging from [0, pi*2)
@@ -112,33 +99,16 @@ for Acc in [0,0.01,0.02,0.03,0.04]:
                 return
 
             #Keep the Boids inside the window
-            def keepWithinBounds(boid):
-                margin=20
-                turnfactor = 5
+            def keepWithinBounds(boid,turnFactor):
+                margin=0
                 if boid[x] < margin :
-                    boid[x] = width
-                    if boid[dx] <= 3:
-                        boid[dx] += turnfactor
-                    if boid[dy] <= 3:
-                        boid[dy] += turnfactor
+                    boid[dx] += turnFactor
                 if boid[x] > width - margin :
-                    boid[x] = margin
-                    if boid[dx] <= 3:
-                        boid[dx] += turnfactor
-                    if boid[dy] <= 3:
-                        boid[dy] += turnfactor
+                    boid[dx] -= turnFactor
                 if boid[y] < margin: 
-                    boid[y] = height
-                    if boid[dx] <= 3:
-                        boid[dx] += turnfactor
-                    if boid[dy] <= 3:
-                        boid[dy] += turnfactor
+                    boid[dy] += turnFactor  
                 if boid[y] > height - margin :
-                    boid[y] = margin
-                    if boid[dx] <= 3:
-                        boid[dx] += turnfactor
-                    if boid[dy] <= 3:
-                        boid[dy] += turnfactor
+                    boid[dy] -= turnFactor
                 return
 
             def flyTowardsCenter(boid):
@@ -147,7 +117,7 @@ for Acc in [0,0.01,0.02,0.03,0.04]:
                 centerY=0
                 numNeighbors = 0
                 for  i in boids:
-                    if boids[i] != boid: #"neighbor 包括了他自己"
+                    if boids[i] != boid: #"neighbor includes itself"
                         if distance(boid,boids[i]) < visualRange_bird:
                             centerX += boids[i][x]
                             centerY += boids[i][y]
@@ -210,12 +180,9 @@ for Acc in [0,0.01,0.02,0.03,0.04]:
                 return      
 
             def numNearFood(boids):
-                #flag = 0
-                #num = 0
                 global X_target
                 global Y_target
                 global point
-                #global num_max
                 global flag
                 global num
                 for i in range(0,numBoids):
@@ -224,16 +191,12 @@ for Acc in [0,0.01,0.02,0.03,0.04]:
                         num += 1
                         if num == 1:
                             point = 1
-                        #if num >= 6:
-                            #flag = 1
-                            #return flag
                 if num > foodtime:
                     flag = 1
                 return flag
             
             initBoids()
             global scatter
-            #scatter_boid = figax.scatter(boidx,boidy)
             flag = 0
 
             def update(frame):
@@ -246,9 +209,6 @@ for Acc in [0,0.01,0.02,0.03,0.04]:
                 global check
                 if point:
                     loop_time += 1
-                    #counter += 0.001
-                    #if counter > 3 and counter < 3.04:
-                        #flag = 1
                 else:
                     totaltime += 0.001
                     if totaltime > 0.150 and totaltime < 0.151:
@@ -261,7 +221,7 @@ for Acc in [0,0.01,0.02,0.03,0.04]:
                     avoidOthers(boid)
                     matchVelocity(boid)
                     limitSpeed(boid)
-                    keepWithinBounds(boid)
+                    keepWithinBounds(boid,7)
                     attraction(boid,X_target,Y_target)
                     acceleration(boid)
                     boid[x] += boid[dx]
@@ -278,42 +238,23 @@ for Acc in [0,0.01,0.02,0.03,0.04]:
                 if flag == 1 :
                     print(Char+str(Num))
                     sheet[Char+str(Num)] = loop_time
-                    workbook.save(filename="searching food.xlsx")
+                    workbook.save(filename="searching_food_new.xlsx")
                     check = 1
-                    #plt.close()
 
                 return boidp,boidx,boidy
                 
             def animate(frame):
                 update(frame)
-                #scatter_boid.set_offsets(boidp)
                 return
 
             point = 0
-            #def mouse_move(ev):
-                #global X_target
-                #global Y_target
-                #global point
-                #X_target = ev.xdata
-                #Y_target = ev.ydata
-                #point = 1
-
             def mouse_move():
                 global X_target
                 global Y_target
-                #global point
                 X_target = random.choice(range(int(width/2-50),int(width/2+50)))
                 Y_target = random.choice(range(int(height/2-50),int(height/2+50)))
-                #point = 1
-
-                #figax.scatter(X_target,Y_target,c='pink')
-                # scatter_target
-
 
             while check != 1:
                 animate(frame)
-            #animation = FuncAnimation(fig,animate, interval=1)
             if check == 1:
                 continue
-
-            #plt.show()
