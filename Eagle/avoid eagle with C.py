@@ -3,27 +3,26 @@
 import random
 from openpyxl import load_workbook
 import math
-import numpy as np
 
-#模拟时向下延伸，改动 Num 即可
-for Acc in [0,0.025,0.05,0.075,0.1,0.2]:
+#Change Num for extension
+for Acc in [0,0.01,0.02,0.03,0.04]:
     for Char in ["A","B","C"]:
-        Char = chr(ord(Char) + int((round(Acc / 0.025)) * 3))
+        Char = chr(ord(Char) + int((round(Acc / 0.01)) * 3))
         for Num in range(3,20):
 
-            workbook = load_workbook(filename="passage_two_eagle.xlsx")
+            workbook = load_workbook(filename="")
             sheet = workbook.active
 
-            width = 800
-            height = 800
+            width = 700
+            height = 700
             numBoids =100
             visualRange_bird = 75
-            visualRange_eagle = 110
+            visualRange_eagle = 140
             touchRange_bird = 30
             catchrange = 10
-            life = 20
+            life = 10
             # define variable for eagle
-            numberofcatch = 3
+            numberofcatch = 5
             maxspeed_eagle = 20
             minspeed_eagle = 10
 
@@ -48,7 +47,7 @@ for Acc in [0,0.025,0.05,0.075,0.1,0.2]:
             p = 1.29
             omega = 1.08*(m**(1/3)*g**(1/2)*b**(-1)*S**(-1/4)*p**(-1/3))*2*math.pi
 
-            count = 0 #表示捕获成功的次数
+            count = 0 #Indicates the number of successful captures
             point = 0
             loop_time = 0
             v = 0
@@ -66,7 +65,7 @@ for Acc in [0,0.025,0.05,0.075,0.1,0.2]:
                         ax : complex(0,random.random()*10),
                         ay : complex(0,random.random()*10),
                         phi : random.random()*math.pi*2, # ranging from [0, pi*2)
-                        life : 20,
+                        life : 10,
                         history:[]}
                 return
             
@@ -85,7 +84,7 @@ for Acc in [0,0.025,0.05,0.075,0.1,0.2]:
 
             def TransToComplex(theta):
                     x = 1
-                    y = complex(x*np.cos(theta),-x*np.sin(theta))
+                    y = complex(x*math.cos(theta),-x*math.sin(theta))
                     return y
 
                 #Define the action function of interference behavior
@@ -145,7 +144,6 @@ for Acc in [0,0.025,0.05,0.075,0.1,0.2]:
                 min_dis_eagle = 0
                 min_boid = 0
                 for i in range(0,numBoids):
-                    #if distance(boids[i],eagle) <= visualRange_eagle:
                         if i==0:
                             min_dis_eagle = distance(boids[i],eagle)
                         else:
@@ -168,7 +166,7 @@ for Acc in [0,0.025,0.05,0.075,0.1,0.2]:
                             point = 1
                     else:
                         v = 10
-                        alpha = math.atan(abs(eagle[dx])/abs(eagle[dy]))
+                        alpha = math.atan(abs(eagle[dy])/abs(eagle[dx]))
                         deltax = v * math.cos(alpha)
                         deltay = v * math.sin(alpha)
                         eagle[dx] = deltax * (abs(eagle[dx])/eagle[dx])
@@ -200,13 +198,11 @@ for Acc in [0,0.025,0.05,0.075,0.1,0.2]:
             
 
             def catchscore(eagle,boids):
-                #global flag             #表示捕捉成功：只要catchrange内有鸟就算成功
                 global catchrange
                 flag = 0
                 catchrange = 10
                 for boid in boids:
                     if distance(eagle,boids[boid]) < catchrange:
-                        #flag = 1
                         boids[boid][life] -= 1
                         if boids[boid][life] <= 0:
                             flag = 1
@@ -219,7 +215,6 @@ for Acc in [0,0.025,0.05,0.075,0.1,0.2]:
 
             def keepWithinBounds(boid,turnFactor):
                 margin=0
-                #turnFactor = 7
                 if boid[x] < margin :
                     boid[dx] += turnFactor
                 if boid[x] > width - margin :
@@ -231,7 +226,7 @@ for Acc in [0,0.025,0.05,0.075,0.1,0.2]:
                 return
             
             def avoideagle(boid,eagle):
-                avoideagle_F = 0.20
+                avoideagle_F = 0.15
                 if distance(boid,eagle)<visualRange_bird:
                     boid[dx] -= (eagle[x]-boid[x]) * avoideagle_F
                     boid[dy] -= (eagle[y]-boid[y]) * avoideagle_F
@@ -243,7 +238,7 @@ for Acc in [0,0.025,0.05,0.075,0.1,0.2]:
                 centerY=0
                 numNeighbors = 0
                 for  i in boids:
-                    if boids[i] != boid: #"neighbor 包括了他自己"
+                    if boids[i] != boid: #"neighbor includes itself"
                         if distance(boid,boids[i]) < visualRange_bird:
                             centerX += boids[i][x]
                             centerY += boids[i][y]
@@ -314,7 +309,6 @@ for Acc in [0,0.025,0.05,0.075,0.1,0.2]:
                     boid[dy] += Acc*abs(boid[ay])*abs(boid[ay])
                 catchbird(eagle) #change the speed of the eagle
                 limitSpeed(eagle,maxspeed_eagle)
-                keepWithinBounds(eagle,12)
                 eagle[x] += eagle[dx]
                 eagle[y] += eagle[dy]
                 rangecheck(eagle)
@@ -322,7 +316,8 @@ for Acc in [0,0.025,0.05,0.075,0.1,0.2]:
                 count += catchscore(eagle,boids)
                 if count == numberofcatch:
                     sheet[Char+str(Num)] = loop_time
-                    workbook.save(filename="passage_two_eagle.xlsx")
+                    workbook.save(filename="")
+                    workbook.close()
                     check = 1
                     print(Char+str(Num))
                 return

@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-for Num in range(3,4):
+for Num in range(3,7):
 
     width = 700
     height = 700
@@ -17,12 +17,10 @@ for Num in range(3,4):
     visualRange_eagle = 140
     touchRange_bird = 30
     catchrange = 10
-    numberofcatch = 3
+    numberofcatch = 5
     maxspeed_eagle = 20
     minspeed_eagle = 10
-    Char = "EE"
-    Acc=0.05
-    #with C 0.35
+    Acc=0
 
     boids={}
     ax = complex(1,1)
@@ -34,7 +32,7 @@ for Num in range(3,4):
     dx=2
     dy=3
     history =4
-    life = 20
+    life = 10
     phi = 5 # phase for the wave function
 
     m = 0.398
@@ -52,7 +50,6 @@ for Num in range(3,4):
     
 
     global scatter_boid,scatter_eagle
-    #global count            #表示捕获成功的次数
     count = 0
     global score
     score = 0
@@ -63,13 +60,9 @@ for Num in range(3,4):
     #initial plot
     fig = plt.figure(figsize=(8, 8))
     figax = fig.add_axes([0, 0, 1, 1], frameon=True)
-    figax.set_xlim(-50, 750), figax.set_xticks([])
-    figax.set_ylim(-50, 750), figax.set_yticks([])
-    #显示捕获次数
-    xtext_ani = plt.text(-40,720,'',fontsize=12)
-
-    #workbook = load_workbook(filename="Modified Quantum(1).xlsx")
-    #sheet4 = workbook.active
+    figax.set_xlim(-50, 1150), figax.set_xticks([])
+    figax.set_ylim(-50, 1150), figax.set_yticks([])
+    xtext_ani = plt.text(-40,1120,'',fontsize=12)
 
     def initBoids():
         for i in range (0,numBoids):
@@ -81,7 +74,7 @@ for Num in range(3,4):
                 ax : complex(0,random.random()*10),
                 ay : complex(0,random.random()*10),
                 phi : random.random()*math.pi*2, # ranging from [0, pi*2)
-                life : 20,
+                life : 10,
                 history:[]}
         for boid in boids:
             boidx.append(boids[boid][x])
@@ -155,8 +148,8 @@ for Num in range(3,4):
     def coefficient(r):
         #equation for exponential damping: e^(-t/torque)
         relative_dis = touchRange_bird
-        coeffi = -r/relative_dis
-        return math.e**coeffi
+        coeffi = -(r-10)/relative_dis
+        return (math.e**coeffi)**Acc
 
     #Defining the predation behavior of eagles
     def catchbird(eagle):
@@ -164,7 +157,6 @@ for Num in range(3,4):
         min_dis_eagle = 0
         min_boid = 0
         for i in range(0,numBoids):
-            #if distance(boids[i],eagle) <= visualRange_eagle:
                 if i==0:
                     min_dis_eagle = distance(boids[i],eagle)
                 else:
@@ -187,7 +179,7 @@ for Num in range(3,4):
                 if point == 0:
                     point = 1
             else:
-                v = random.random() * 3
+                v = 10
                 alpha = math.atan(abs(eagle[dx])/abs(eagle[dy]))
                 deltax = v * math.cos(alpha)
                 deltay = v * math.sin(alpha)
@@ -220,13 +212,11 @@ for Num in range(3,4):
         
 
     def catchscore(eagle,boids):
-        #global flag             #表示捕捉成功：只要catchrange内有鸟就算成功
         global catchrange
         flag = 0
         catchrange = 10
         for boid in boids:
             if distance(eagle,boids[boid]) < catchrange:
-                #flag = 1
                 boids[boid][life] -= 1
                 if boids[boid][life] <= 0:
                     flag = 1
@@ -239,7 +229,6 @@ for Num in range(3,4):
 
     def keepWithinBounds(boid,turnFactor):
         margin=0
-        #turnFactor = 7
         if boid[x] < margin :
             boid[dx] += turnFactor
         if boid[x] > width - margin :
@@ -251,7 +240,7 @@ for Num in range(3,4):
         return
     
     def avoideagle(boid,eagle):
-        avoideagle_F = 0.16
+        avoideagle_F = 0.2
         if distance(boid,eagle)<visualRange_bird:
             boid[dx] -= (eagle[x]-boid[x]) * avoideagle_F
             boid[dy] -= (eagle[y]-boid[y]) * avoideagle_F
@@ -263,7 +252,7 @@ for Num in range(3,4):
         centerY=0
         numNeighbors = 0
         for  i in boids:
-            if boids[i] != boid: #"neighbor 包括了他自己"
+            if boids[i] != boid: #"neighbor includes itself"
                 if distance(boid,boids[i]) < visualRange_bird:
                     centerX += boids[i][x]
                     centerY += boids[i][y]
@@ -331,7 +320,6 @@ for Num in range(3,4):
         global score
         boidp=[]
         boidq=[]
-        #boidp.append([x_target,y_target])
         for i in range (0,numBoids):
             boid=boids[i]
             flyTowardsCenter(boid)
@@ -343,8 +331,8 @@ for Num in range(3,4):
             acceleration(boid)
             boid[x] += boid[dx]
             boid[y] += boid[dy]
-            boid[dx] += Acc*abs(boid[ax])*abs(boid[ax])
-            boid[dy] += Acc*abs(boid[ay])*abs(boid[ay])
+            boid[dx] += Acc*abs(boid[ax])*abs(boid[ax])*math.ceil(Acc)
+            boid[dy] += Acc*abs(boid[ay])*abs(boid[ay])*math.ceil(Acc)
             boidx=[]
             boidx.append(boid[x])
             boidy=[]
@@ -352,6 +340,7 @@ for Num in range(3,4):
             boidp.append([boid[x],boid[y]])
         catchbird(eagle)
         limitSpeed(eagle,maxspeed_eagle)
+        keepWithinBounds(eagle,12)
         eagle[x] += eagle[dx]
         eagle[y] += eagle[dy]
         eaglex=[]
@@ -362,10 +351,8 @@ for Num in range(3,4):
 
         xtext_ani.set_text('score={:}'.format(loop_time))
         count += catchscore(eagle,boids)
-        #if count == numberofcatch:
-            #sheet4[Char+str(Num)] = loop_time
-            #workbook.save(filename="Modified Quantum(1).xlsx")
-            #plt.close()
+        if count == numberofcatch:
+            plt.close()
         return boidp,boidx,boidy,boidq
         
     def animate(frame):

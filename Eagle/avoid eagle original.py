@@ -3,27 +3,26 @@
 import random
 from openpyxl import load_workbook
 import math
-import numpy as np
 
-#模拟时向下延伸，改动 Num 即可
-for Acc in [0,0.025,0.05,0.075,0.1]:
+#Change Num for extension
+for Acc in [0,0.01,0.02,0.03,0.04]:
     for Char in ["A","B","C"]:
-        Char = chr(ord(Char) + int((round(Acc / 0.025)) * 3))
+        Char = chr(ord(Char) + int((round(Acc / 0.01)) * 3))
         for Num in range(3,20):
 
-            workbook = load_workbook(filename="passage_two_eagle.xlsx")
+            workbook = load_workbook(filename="")
             sheet = workbook.active
 
-            width = 800
-            height = 800
+            width = 700
+            height = 700
             numBoids =100
             visualRange_bird = 75
-            visualRange_eagle = 110
+            visualRange_eagle = 140
             touchRange_bird = 30
             catchrange = 10
-            life = 20
+            life = 10
             # define variable for eagle
-            numberofcatch = 3
+            numberofcatch = 5
             maxspeed_eagle = 20
             minspeed_eagle = 10
 
@@ -48,15 +47,14 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
             p = 1.29
             omega = 1.08*(m**(1/3)*g**(1/2)*b**(-1)*S**(-1/4)*p**(-1/3))*2*math.pi
 
-            count = 0 #表示捕获成功的次数
+            count = 0 #Indicates the number of successful captures
             point = 0
             loop_time = 0
             v = 0
             check = 0
 
-            
-
             def initBoids():
+                numBoids = 100
                 for i in range (0,numBoids):
                     boids[i] = {
                         x : random.random() * (width-50)+50,
@@ -66,7 +64,7 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                         ax : complex(0,random.random()*10),
                         ay : complex(0,random.random()*10),
                         phi : random.random()*math.pi*2, # ranging from [0, pi*2)
-                        life : 20,
+                        life : 10,
                         history:[]}
                 return
             
@@ -75,14 +73,13 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                 eagle={ x:random.choice([0]), y:random.choice(range(25,height-25)), dx:random.random()*5 , dy:random.random()*5,
                     history:[]}
                 return eagle
-
+            
             def distance(boid1, boid2):
                 return math.sqrt( (boid1[x] - boid2[x]) * (boid1[x] - boid2[x]) +(boid1[y] - boid2[y]) * (boid1[y] - boid2[y]))
             def distanceX(boid1,boid2):
                 return (boid1[x]-boid2[x])
             def distanceY(boid1,boid2):
                 return (boid1[y]-boid2[y])
-            
             def TransToComplex(theta):
                 x = 1
                 phi = theta * 2 * math.pi
@@ -105,12 +102,12 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                 boid[ax] = axTotal/BoidsInRange
                 boid[ay] = ayTotal/BoidsInRange
                 return
-
+            
             def phasechange(boid):
                     boid[phi] += omega
                     boid[phi] = boid[phi] % 2 * math.pi
                     return
-                
+
             def cal_accleration(boid,i,wavelength):
                     # Calculating alpha between two birds.
                     diffy = boids[i][y]-boid[y]
@@ -141,7 +138,6 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                 min_dis_eagle = 0
                 min_boid = 0
                 for i in range(0,numBoids):
-                    #if distance(boids[i],eagle) <= visualRange_eagle:
                         if i==0:
                             min_dis_eagle = distance(boids[i],eagle)
                         else:
@@ -151,7 +147,7 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                 interval = (maxspeed_eagle-minspeed_eagle)/(visualRange_eagle-catchrange)
                 chasingcheck(boids[min_boid],eagle,maxspeed_eagle,catchrange,interval,catchFactor)
                 return
-
+            
             def chasingcheck(creature,eagle,speedlimit,min_dis,delta_change,factor):
                     zero = 0
                     v = 0
@@ -163,8 +159,12 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                         if point == 0:
                             point = 1
                     else:
-                        eagle[dx] = 0
-                        eagle[dy] = 0
+                        v = 10
+                        alpha = math.atan(abs(eagle[dx])/abs(eagle[dy]))
+                        deltax = v * math.cos(alpha)
+                        deltay = v * math.sin(alpha)
+                        eagle[dx] = deltax * (abs(eagle[dx])/eagle[dx])
+                        eagle[dy] = deltay * (abs(eagle[dy])/eagle[dy])
                         return
                     if v > speedlimit:
                         v = speedlimit
@@ -190,15 +190,12 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                         eagle[dy] = deltay * (abs(diffy)/diffy)
                     return
             
-
             def catchscore(eagle,boids):
-                #global flag             #表示捕捉成功：只要catchrange内有鸟就算成功
                 global catchrange
                 flag = 0
                 catchrange = 10
                 for boid in boids:
                     if distance(eagle,boids[boid]) < catchrange:
-                        #flag = 1
                         boids[boid][life] -= 1
                         if boids[boid][life] <= 0:
                             flag = 1
@@ -208,10 +205,9 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                             boids[boid][dy] = 0
                             return flag
                 return flag
-
+            
             def keepWithinBounds(boid,turnFactor):
                 margin=0
-                #turnFactor = 7
                 if boid[x] < margin :
                     boid[dx] += turnFactor
                 if boid[x] > width - margin :
@@ -223,19 +219,19 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                 return
             
             def avoideagle(boid,eagle):
-                avoideagle_F = 0.2
+                avoideagle_F = 0.15
                 if distance(boid,eagle)<visualRange_bird:
                     boid[dx] -= (eagle[x]-boid[x]) * avoideagle_F
                     boid[dy] -= (eagle[y]-boid[y]) * avoideagle_F
                 return
-
+            
             def flyTowardsCenter(boid):
                 centeringFactor = 0.005
                 centerX=0
                 centerY=0
                 numNeighbors = 0
                 for  i in boids:
-                    if boids[i] != boid: #"neighbor 包括了他自己"
+                    if boids[i] != boid: #neighbor include itself
                         if distance(boid,boids[i]) < visualRange_bird:
                             centerX += boids[i][x]
                             centerY += boids[i][y]
@@ -260,7 +256,7 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                 boid[dx] += moveX * avoidFactor
                 boid[dy] += moveY * avoidFactor
                 return
-
+            
             def matchVelocity(boid):
                 matchingFactor = 0.05
                 avgDX=0
@@ -277,7 +273,7 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                     boid[dx]+=(avgDX-boid[dx])*matchingFactor
                     boid[dy]+=(avgDY-boid[dy])*matchingFactor
                 return
-
+            
             def limitSpeed(boid,speedLimit):
                 speed = math.sqrt(boid[dx]*boid[dx]+boid[dy]*boid[dy])
                 if speed > speedLimit:
@@ -287,7 +283,7 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
 
             def animate():
                 global loop_time
-                if point:
+                if point == 1:
                     loop_time += 1
                 global count
                 global check
@@ -306,7 +302,6 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                     boid[dy] += Acc*abs(boid[ay])*abs(boid[ay])
                 catchbird(eagle) #change the speed of the eagle
                 limitSpeed(eagle,maxspeed_eagle)
-                keepWithinBounds(eagle,12)
                 eagle[x] += eagle[dx]
                 eagle[y] += eagle[dy]
                 rangecheck(eagle)
@@ -314,7 +309,8 @@ for Acc in [0,0.025,0.05,0.075,0.1]:
                 count += catchscore(eagle,boids)
                 if count == numberofcatch:
                     sheet[Char+str(Num)] = loop_time
-                    workbook.save(filename="passage_two_eagle.xlsx")
+                    workbook.save(filename="")
+                    workbook.close()
                     check = 1
                     print(Char+str(Num))
                 return
